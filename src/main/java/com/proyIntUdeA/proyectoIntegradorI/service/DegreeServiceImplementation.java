@@ -30,7 +30,7 @@ public class DegreeServiceImplementation implements DegreeService{
                 (long) degreeEntity.getDegree_id(),
                 degreeEntity.getDegree_name(),
                 degreeEntity.getDegree_modality(),
-                degreeEntity.getDegree_department())).collect(Collectors.toList());
+                degreeEntity.getDegree_department())).toList();
     }
 
     @Override
