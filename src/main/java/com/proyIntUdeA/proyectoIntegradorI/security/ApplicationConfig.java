@@ -1,6 +1,5 @@
 package com.proyIntUdeA.proyectoIntegradorI.security;
 
-import static java.util.Arrays.parallelSort;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
