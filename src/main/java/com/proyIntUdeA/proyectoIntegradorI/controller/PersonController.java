@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,6 +60,14 @@ public class PersonController {
 
     @PutMapping("/persons/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable("id") String id, @RequestBody Person person) {
+        person = personService.updatePerson(id, person);
+        return ResponseEntity.ok(person);
+    }
+
+    @PutMapping("/persons/activateTutor/{id}")
+    public ResponseEntity<Person> activateTutor(@PathVariable("id") String id) {
+        Person person = personService.getPersonById(id);
+        person.setUser_role("tutor");
         person = personService.updatePerson(id, person);
         return ResponseEntity.ok(person);
     }
