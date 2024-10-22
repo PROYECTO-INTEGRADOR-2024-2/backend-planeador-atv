@@ -1,6 +1,7 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
+import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.repository.PersonRepository;
 import com.proyIntUdeA.proyectoIntegradorI.repository.SessionRepository;
@@ -10,7 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -75,7 +76,7 @@ public class SessionServiceImplementation implements SessionService {
     }
 
     @Override
-    public Session updateSession(long id, Session session) {
+    public SessionEntity updateSession(long id, SessionEntity session) {
         SessionEntity sessionEntity = sessionRepository.findById(id).get();
         sessionEntity.setClass_state(session.getClass_state());
         sessionEntity.setStudent_id(session.getStudent_id());
@@ -145,5 +146,17 @@ public class SessionServiceImplementation implements SessionService {
                         sessionEntity.getClass_date(),
                         sessionEntity.getClass_rate()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean acceptSession(AcceptSessionRequest acceptSessionRequest) {
+        long sessionId = acceptSessionRequest.getSessionId();
+        String tutorId = acceptSessionRequest.getTutorId();
+        Optional<SessionEntity> session = sessionRepository.findById(sessionId);
+        SessionEntity sessionEntity = session.get();
+        sessionEntity.setClass_state("aceptada");
+        sessionEntity.setTutor_id(tutorId);
+        updateSession(sessionId,sessionEntity);
+        return true;
     }
 }

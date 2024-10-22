@@ -1,5 +1,7 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
+import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
+import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import lombok.AllArgsConstructor;
@@ -46,7 +48,7 @@ public class SessionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Session> updateSession(@PathVariable("id") long id, @RequestBody Session session) {
+    public ResponseEntity<SessionEntity> updateSession(@PathVariable("id") long id, @RequestBody SessionEntity session) {
         session = sessionService.updateSession(id, session);
         return ResponseEntity.ok(session);
     }
@@ -68,4 +70,8 @@ public class SessionController {
         return sessionService.getTutosStudent(id);
     }
 
+    @PutMapping("/sessionsPoolAccept")
+    public boolean acceptSession(@RequestBody AcceptSessionRequest acceptSessionRequest) {
+        return sessionService.acceptSession(acceptSessionRequest);
+    }
 }
