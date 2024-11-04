@@ -2,6 +2,7 @@ package com.proyIntUdeA.proyectoIntegradorI.controller;
 
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
+import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import lombok.AllArgsConstructor;
@@ -51,6 +52,17 @@ public class SessionController {
     public ResponseEntity<SessionEntity> updateSession(@PathVariable("id") long id, @RequestBody SessionEntity session) {
         session = sessionService.updateSession(id, session);
         return ResponseEntity.ok(session);
+    }
+
+    @PutMapping("/rejectSession")
+    public ResponseEntity<SessionEntity> rejectSession(@RequestBody RejectSessionRequest request) {
+        boolean status = sessionService.rejectSession(request);
+        if (status) {
+            return ResponseEntity.ok(new SessionEntity());
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/pool")

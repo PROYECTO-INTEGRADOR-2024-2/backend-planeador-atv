@@ -2,6 +2,7 @@ package com.proyIntUdeA.proyectoIntegradorI.service;
 
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
+import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import java.util.List;
 
@@ -16,5 +17,5 @@ public interface SessionService {
     List<Session> getTutosTutor(String id);
     List<Session> getTutosStudent(String id);
     boolean acceptSession(AcceptSessionRequest acceptSessionRequest);
-
+    boolean rejectSession(RejectSessionRequest rejectSessionRequest);
 }

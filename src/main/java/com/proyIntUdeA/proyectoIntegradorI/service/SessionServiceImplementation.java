@@ -1,7 +1,9 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
+import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.repository.PersonRepository;
 import com.proyIntUdeA.proyectoIntegradorI.repository.SessionRepository;
@@ -159,4 +161,24 @@ public class SessionServiceImplementation implements SessionService {
         updateSession(sessionId,sessionEntity);
         return true;
     }
+
+    @Override
+    public boolean rejectSession(RejectSessionRequest rejectSessionRequest) {
+        long sessionId = rejectSessionRequest.getSessionId();
+        String tutorId = rejectSessionRequest.getTutorId();
+        Optional<PersonEntity> person = personRepository.findById(tutorId);
+            if (!person.isPresent()) {
+                throw new RuntimeException("No eres tutor para hacer esta operación");
+            }
+
+        Optional<SessionEntity> session = sessionRepository.findById(sessionId);
+        SessionEntity sessionEntity = session.get();
+        sessionEntity.setClass_state("pendiente");
+        sessionEntity.setTutor_id("0000");
+        updateSession(sessionId,sessionEntity);
+        return true;
+    }
+
+
+
 }
