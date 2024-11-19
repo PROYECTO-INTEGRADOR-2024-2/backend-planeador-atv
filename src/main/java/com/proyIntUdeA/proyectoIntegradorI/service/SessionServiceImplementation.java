@@ -183,27 +183,31 @@ public class SessionServiceImplementation implements SessionService {
     @Override
     public List<Session> getAllPastSessionsStudent(String id) {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
+        Date now = new Date();
+        Date twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+        System.out.println(twoHoursAgo);
 
-        List<Session> todas = sessionEntities.stream()
-                .filter(sessionEntity -> id.equals(sessionEntity.getStudent_id()))
+        List<Session> allSessions = sessionEntities.stream()
+                .filter(sessionEntity ->
+                        sessionEntity.getClass_date().before(twoHoursAgo) &&
+                                id.equals(sessionEntity.getStudent_id()))
                 .map(sessionEntity -> new Session(
                         sessionEntity.getClass_id(),
                         sessionEntity.getClass_state(),
                         personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
                                 personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
-                        personRepository.findById(sessionEntity.getTutor_id()).get().getUsername() + " " +
-                                personRepository.findById(sessionEntity.getTutor_id()).get().getUser_lastname(),
+                        sessionEntity.getTutor_id(),
                         sessionEntity.getSubject_id(),
                         sessionEntity.getClass_topics(),
                         sessionEntity.getClass_date(),
-                        sessionEntity.getClass_rate()))
-                .collect(Collectors.toList());
+                        sessionEntity.getClass_rate())).collect(Collectors.toList());
 
-        todas.stream().forEach(tuto -> {
-            System.out.println(tuto.getClass_date());
+        allSessions.stream().forEach(session -> {
+            System.out.println("Comparing this Dates:");
+            System.out.println(twoHoursAgo + " ----- " + session.getClass_date());
         });
 
-        return todas;
+        return allSessions;
     }
 
     @Override
@@ -213,7 +217,7 @@ public class SessionServiceImplementation implements SessionService {
         Date twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
         System.out.println(twoHoursAgo);
 
-        return sessionEntities.stream()
+        List<Session> allSessions =  sessionEntities.stream()
                 .filter(sessionEntity ->
                         sessionEntity.getClass_date().after(twoHoursAgo) &&
                                 id.equals(sessionEntity.getTutor_id()))
@@ -227,6 +231,13 @@ public class SessionServiceImplementation implements SessionService {
                         sessionEntity.getClass_topics(),
                         sessionEntity.getClass_date(),
                         sessionEntity.getClass_rate())).collect(Collectors.toList());
+
+        allSessions.stream().forEach(session -> {
+            System.out.println("Comparing this Dates:");
+            System.out.println(twoHoursAgo + " ----- " + session.getClass_date());
+        });
+
+            return allSessions;
     }
 
 }
