@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -179,6 +180,53 @@ public class SessionServiceImplementation implements SessionService {
         return true;
     }
 
+    @Override
+    public List<Session> getAllPastSessionsStudent(String id) {
+        List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
+        List<Session> todas = sessionEntities.stream()
+                .filter(sessionEntity -> id.equals(sessionEntity.getStudent_id()))
+                .map(sessionEntity -> new Session(
+                        sessionEntity.getClass_id(),
+                        sessionEntity.getClass_state(),
+                        personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
+                        personRepository.findById(sessionEntity.getTutor_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getTutor_id()).get().getUser_lastname(),
+                        sessionEntity.getSubject_id(),
+                        sessionEntity.getClass_topics(),
+                        sessionEntity.getClass_date(),
+                        sessionEntity.getClass_rate()))
+                .collect(Collectors.toList());
+
+        todas.stream().forEach(tuto -> {
+            System.out.println(tuto.getClass_date());
+        });
+
+        return todas;
+    }
+
+    @Override
+    public List<Session> getAllPastSessionsTutor(String id) {
+        List<SessionEntity> sessionEntities = sessionRepository.findAll();
+        Date now = new Date();
+        Date twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+        System.out.println(twoHoursAgo);
+
+        return sessionEntities.stream()
+                .filter(sessionEntity ->
+                        sessionEntity.getClass_date().after(twoHoursAgo) &&
+                                id.equals(sessionEntity.getTutor_id()))
+                .map(sessionEntity -> new Session(
+                        sessionEntity.getClass_id(),
+                        sessionEntity.getClass_state(),
+                        personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
+                        sessionEntity.getTutor_id(),
+                        sessionEntity.getSubject_id(),
+                        sessionEntity.getClass_topics(),
+                        sessionEntity.getClass_date(),
+                        sessionEntity.getClass_rate())).collect(Collectors.toList());
+    }
 
 }

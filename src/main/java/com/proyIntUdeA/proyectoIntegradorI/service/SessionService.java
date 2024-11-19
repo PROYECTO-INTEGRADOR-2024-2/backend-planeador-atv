@@ -18,4 +18,6 @@ public interface SessionService {
     List<Session> getTutosStudent(String id);
     boolean acceptSession(AcceptSessionRequest acceptSessionRequest);
     boolean rejectSession(RejectSessionRequest rejectSessionRequest);
+    List<Session> getAllPastSessionsStudent(String id);
+    List<Session> getAllPastSessionsTutor(String id);
 }

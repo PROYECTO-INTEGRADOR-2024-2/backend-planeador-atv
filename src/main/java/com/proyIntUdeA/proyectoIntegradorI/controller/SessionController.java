@@ -86,4 +86,14 @@ public class SessionController {
     public boolean acceptSession(@RequestBody AcceptSessionRequest acceptSessionRequest) {
         return sessionService.acceptSession(acceptSessionRequest);
     }
+
+    @GetMapping("/pastSessionsStudent/{id}")
+    public List<Session> getPastTutosStudent(@PathVariable("id") String id) {
+        return sessionService.getAllPastSessionsStudent(id);
+    }
+
+    @GetMapping("/pastSessionsTutor/{id}")
+    public List<Session> getPastTutosTutor(@PathVariable("id") String id) {
+        return sessionService.getAllPastSessionsTutor(id);
+    }
 }
