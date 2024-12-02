@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -182,13 +184,13 @@ public class SessionServiceImplementation implements SessionService {
     @Override
     public List<Session> getAllPastSessionsStudent(String id) {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
-        Date now = new Date();
-        Date twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
-        System.out.println(twoHoursAgo);
-
+        Instant now = Instant.now();
+        System.out.println("Fecha actual: " + now);
+        Instant twoHoursAgo = now.minus(7, ChronoUnit.HOURS);
+        System.out.println("Fecha actual menos 2 horas: " + twoHoursAgo);
         List<Session> allSessions = sessionEntities.stream()
                 .filter(sessionEntity ->
-                        sessionEntity.getClass_date().before(twoHoursAgo) &&
+                        sessionEntity.getClass_date().toInstant().isBefore(twoHoursAgo) &&
                                 id.equals(sessionEntity.getStudent_id()))
                 .map(sessionEntity -> new Session(
                         sessionEntity.getClass_id(),
@@ -201,9 +203,10 @@ public class SessionServiceImplementation implements SessionService {
                         sessionEntity.getClass_date(),
                         sessionEntity.getClass_rate())).collect(Collectors.toList());
 
-        allSessions.stream().forEach(session -> {
+        sessionEntities.stream().forEach(session -> {
             System.out.println("Comparing this Dates:");
-            System.out.println(twoHoursAgo + " ----- " + session.getClass_date());
+            System.out.println(twoHoursAgo + " ----- " + session.getClass_date().toInstant());
+            System.out.println("¿Es la fecha de la tuto anterior a 2 horas antes? " + session.getClass_date().toInstant().isBefore(twoHoursAgo));
         });
 
         return allSessions;
@@ -212,13 +215,12 @@ public class SessionServiceImplementation implements SessionService {
     @Override
     public List<Session> getAllPastSessionsTutor(String id) {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
-        Date now = new Date();
-        Date twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000));
-        System.out.println(twoHoursAgo);
+        Instant now = Instant.now();
+        Instant twoHoursAgo = now.minus(2, ChronoUnit.HOURS);
 
-        List<Session> allSessions =  sessionEntities.stream()
+        return sessionEntities.stream()
                 .filter(sessionEntity ->
-                        sessionEntity.getClass_date().after(twoHoursAgo) &&
+                        sessionEntity.getClass_date().toInstant().isBefore(twoHoursAgo) &&
                                 id.equals(sessionEntity.getTutor_id()))
                 .map(sessionEntity -> new Session(
                         sessionEntity.getClass_id(),
@@ -229,14 +231,8 @@ public class SessionServiceImplementation implements SessionService {
                         sessionEntity.getSubject_id(),
                         sessionEntity.getClass_topics(),
                         sessionEntity.getClass_date(),
-                        sessionEntity.getClass_rate())).collect(Collectors.toList());
-
-        allSessions.stream().forEach(session -> {
-            System.out.println("Comparing this Dates:");
-            System.out.println(twoHoursAgo + " ----- " + session.getClass_date());
-        });
-
-            return allSessions;
+                        sessionEntity.getClass_rate()))
+                .collect(Collectors.toList());
     }
 
 }
