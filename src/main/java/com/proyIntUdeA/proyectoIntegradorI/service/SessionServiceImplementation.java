@@ -23,7 +23,6 @@ public class SessionServiceImplementation implements SessionService {
 
     private SessionRepository sessionRepository;
     private PersonRepository personRepository;
-    private SubjectRepository subjectRepository;
 
     @Override
     public Session saveSession(Session session) {
