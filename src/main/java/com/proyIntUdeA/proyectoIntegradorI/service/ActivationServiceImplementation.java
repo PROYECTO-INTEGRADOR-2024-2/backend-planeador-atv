@@ -58,11 +58,15 @@ public class ActivationServiceImplementation implements ActivationService {
     public Optional<ApplicationActivationTutorEntity> acceptRequest(Long id) {
         Optional<ApplicationActivationTutorEntity> app = activationRepository.findById(id);
         app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplication_state("aceptada"));
+        activationRepository.save(app.get());
         return app;
     }
 
     @Override
-    public ApplicationActivationTutor rejectRequest(Long id) {
-        return null;
+    public Optional<ApplicationActivationTutorEntity> rejectRequest(Long id) {
+        Optional<ApplicationActivationTutorEntity> app = activationRepository.findById(id);
+        app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplication_state("rechazada"));
+        activationRepository.save(app.get());
+        return app;
     }
 }

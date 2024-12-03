@@ -13,5 +13,5 @@ public interface ActivationService {
     ApplicationActivationTutor updateApplication(ApplicationActivationTutor applicationActivationTutor);
     ApplicationActivationTutor deleteApplication(Long id);
     Optional<ApplicationActivationTutorEntity> acceptRequest(Long id);
-    ApplicationActivationTutor rejectRequest(Long id);
+    Optional<ApplicationActivationTutorEntity> rejectRequest(Long id);
 }
