@@ -8,7 +8,9 @@ import com.proyIntUdeA.proyectoIntegradorI.repository.ActivationRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +40,8 @@ public class ActivationServiceImplementation implements ActivationService {
     }
 
     @Override
-    public ApplicationActivationTutor getApplicationById(String id) {
-        return null;
+    public Optional<ApplicationActivationTutorEntity> getApplicationById(Long id) {
+        return activationRepository.findById(id);
     }
 
     @Override
@@ -48,17 +50,19 @@ public class ActivationServiceImplementation implements ActivationService {
     }
 
     @Override
-    public ApplicationActivationTutor deleteApplication(String id) {
+    public ApplicationActivationTutor deleteApplication(Long id) {
         return null;
     }
 
     @Override
-    public ApplicationActivationTutor acceptRequest(String id) {
-        return null;
+    public Optional<ApplicationActivationTutorEntity> acceptRequest(Long id) {
+        Optional<ApplicationActivationTutorEntity> app = activationRepository.findById(id);
+        app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplication_state("aceptada"));
+        return app;
     }
 
     @Override
-    public ApplicationActivationTutor rejectRequest(String id) {
+    public ApplicationActivationTutor rejectRequest(Long id) {
         return null;
     }
 }
