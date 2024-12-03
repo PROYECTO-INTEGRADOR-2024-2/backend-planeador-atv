@@ -7,11 +7,13 @@ import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.repository.PersonRepository;
 import com.proyIntUdeA.proyectoIntegradorI.repository.SessionRepository;
-import com.proyIntUdeA.proyectoIntegradorI.repository.SubjectRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,7 +24,6 @@ public class SessionServiceImplementation implements SessionService {
 
     private SessionRepository sessionRepository;
     private PersonRepository personRepository;
-    private SubjectRepository subjectRepository;
 
     @Override
     public Session saveSession(Session session) {
@@ -179,6 +180,50 @@ public class SessionServiceImplementation implements SessionService {
         return true;
     }
 
+    @Override
+    public List<Session> getAllPastSessionsStudent(String id) {
+        List<SessionEntity> sessionEntities = sessionRepository.findAll();
+        Instant now = Instant.now();
+        Instant twoHoursAgo = now.minus(7, ChronoUnit.HOURS);
+        List<Session> allSessions = sessionEntities.stream()
+                .filter(sessionEntity ->
+                        sessionEntity.getClass_date().toInstant().isBefore(twoHoursAgo) &&
+                                id.equals(sessionEntity.getStudent_id()))
+                .map(sessionEntity -> new Session(
+                        sessionEntity.getClass_id(),
+                        sessionEntity.getClass_state(),
+                        personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
+                        sessionEntity.getTutor_id(),
+                        sessionEntity.getSubject_id(),
+                        sessionEntity.getClass_topics(),
+                        sessionEntity.getClass_date(),
+                        sessionEntity.getClass_rate())).collect(Collectors.toList());
 
+        return allSessions;
+    }
+
+    @Override
+    public List<Session> getAllPastSessionsTutor(String id) {
+        List<SessionEntity> sessionEntities = sessionRepository.findAll();
+        Instant now = Instant.now();
+        Instant twoHoursAgo = now.minus(2, ChronoUnit.HOURS);
+
+        return sessionEntities.stream()
+                .filter(sessionEntity ->
+                        sessionEntity.getClass_date().toInstant().isBefore(twoHoursAgo) &&
+                                id.equals(sessionEntity.getTutor_id()))
+                .map(sessionEntity -> new Session(
+                        sessionEntity.getClass_id(),
+                        sessionEntity.getClass_state(),
+                        personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
+                        sessionEntity.getTutor_id(),
+                        sessionEntity.getSubject_id(),
+                        sessionEntity.getClass_topics(),
+                        sessionEntity.getClass_date(),
+                        sessionEntity.getClass_rate()))
+                .collect(Collectors.toList());
+    }
 
 }
