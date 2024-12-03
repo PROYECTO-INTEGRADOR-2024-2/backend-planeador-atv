@@ -19,5 +19,17 @@ public interface SessionService {
     boolean acceptSession(AcceptSessionRequest acceptSessionRequest);
     boolean rejectSession(RejectSessionRequest rejectSessionRequest);
     List<Session> getAllPastSessionsStudent(String id);
+    List<Session> getAllPendingSessionsStudent(String id);
     List<Session> getAllPastSessionsTutor(String id);
+    List<Session> getAllPendingSessionsTutor(String id);
+
+    // Acciones de los encuentros
+    //Calificar
+    boolean rateClass(Long classId, float rate);
+
+    // Registrar encuentro como realizado
+    boolean registerClass(Long classId);
+
+    // Encuentro no realizado
+    boolean noClass(Long classId);
 }
