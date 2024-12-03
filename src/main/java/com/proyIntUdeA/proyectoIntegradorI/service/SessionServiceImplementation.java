@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -271,5 +270,32 @@ public class SessionServiceImplementation implements SessionService {
 
         return allSessions;
     }
+
+    // Métodos para realizar acciones sobre tutorías pasadas de tiempo
+
+    @Override
+    public boolean rateClass(Long classId, float rate) {
+        SessionEntity session = sessionRepository.findById(classId).get();
+        session.setClass_rate(rate);
+        SessionEntity saved = sessionRepository.save(session);
+        if(saved != null) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public boolean registerClass(Long classId) {
+        return false;
+    }
+
+    @Override
+    public boolean noClass(Long classId) {
+        return false;
+    }
+
+
+
 
 }

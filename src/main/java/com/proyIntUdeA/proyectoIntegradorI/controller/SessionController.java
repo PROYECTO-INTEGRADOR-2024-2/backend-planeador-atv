@@ -2,6 +2,7 @@ package com.proyIntUdeA.proyectoIntegradorI.controller;
 
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
+import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
@@ -106,4 +107,12 @@ public class SessionController {
     public List<Session> getPendingTutosTutor(@PathVariable("id") String id) {
         return sessionService.getAllPendingSessionsTutor(id);
     }
+
+    // Endpoint para editar tutorías
+    @PutMapping("/rateClass")
+    public boolean rateClass(@RequestBody RateClassRequest rate) {
+        return sessionService.rateClass(rate.getClassId(), rate.getRate());
+    }
+
+
 }
