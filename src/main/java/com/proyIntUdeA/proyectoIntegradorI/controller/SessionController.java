@@ -96,4 +96,14 @@ public class SessionController {
     public List<Session> getPastTutosTutor(@PathVariable("id") String id) {
         return sessionService.getAllPastSessionsTutor(id);
     }
+
+    @GetMapping("/pendingSessionsStudent/{id}")
+    public List<Session> getPendingTutosStudent(@PathVariable("id") String id) {
+        return sessionService.getAllPendingSessionsStudent(id);
+    }
+
+    @GetMapping("/pendingSessionsTutor/{id}")
+    public List<Session> getPendingTutosTutor(@PathVariable("id") String id) {
+        return sessionService.getAllPendingSessionsTutor(id);
+    }
 }

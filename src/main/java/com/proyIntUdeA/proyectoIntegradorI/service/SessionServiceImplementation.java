@@ -204,12 +204,34 @@ public class SessionServiceImplementation implements SessionService {
     }
 
     @Override
+    public List<Session> getAllPendingSessionsStudent(String id) {
+        List<SessionEntity> sessionEntities = sessionRepository.findAll();
+        Instant now = Instant.now();
+        Instant twoHoursAgo = now.minus(7, ChronoUnit.HOURS);
+        List<Session> allSessions = sessionEntities.stream()
+                .filter(sessionEntity ->
+                        sessionEntity.getClass_date().toInstant().isAfter(twoHoursAgo) &&
+                                id.equals(sessionEntity.getStudent_id()))
+                .map(sessionEntity -> new Session(
+                        sessionEntity.getClass_id(),
+                        sessionEntity.getClass_state(),
+                        personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
+                        sessionEntity.getTutor_id(),
+                        sessionEntity.getSubject_id(),
+                        sessionEntity.getClass_topics(),
+                        sessionEntity.getClass_date(),
+                        sessionEntity.getClass_rate())).collect(Collectors.toList());
+
+        return allSessions;
+    }
+
+    @Override
     public List<Session> getAllPastSessionsTutor(String id) {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
         Instant now = Instant.now();
-        Instant twoHoursAgo = now.minus(2, ChronoUnit.HOURS);
-
-        return sessionEntities.stream()
+        Instant twoHoursAgo = now.minus(7, ChronoUnit.HOURS);
+        List<Session> allSessions = sessionEntities.stream()
                 .filter(sessionEntity ->
                         sessionEntity.getClass_date().toInstant().isBefore(twoHoursAgo) &&
                                 id.equals(sessionEntity.getTutor_id()))
@@ -222,8 +244,32 @@ public class SessionServiceImplementation implements SessionService {
                         sessionEntity.getSubject_id(),
                         sessionEntity.getClass_topics(),
                         sessionEntity.getClass_date(),
-                        sessionEntity.getClass_rate()))
-                .collect(Collectors.toList());
+                        sessionEntity.getClass_rate())).collect(Collectors.toList());
+
+        return allSessions;
+    }
+
+    @Override
+    public List<Session> getAllPendingSessionsTutor(String id) {
+        List<SessionEntity> sessionEntities = sessionRepository.findAll();
+        Instant now = Instant.now();
+        Instant twoHoursAgo = now.minus(7, ChronoUnit.HOURS);
+        List<Session> allSessions = sessionEntities.stream()
+                .filter(sessionEntity ->
+                        sessionEntity.getClass_date().toInstant().isAfter(twoHoursAgo) &&
+                                id.equals(sessionEntity.getTutor_id()))
+                .map(sessionEntity -> new Session(
+                        sessionEntity.getClass_id(),
+                        sessionEntity.getClass_state(),
+                        personRepository.findById(sessionEntity.getStudent_id()).get().getUsername() + " " +
+                                personRepository.findById(sessionEntity.getStudent_id()).get().getUser_lastname(),
+                        sessionEntity.getTutor_id(),
+                        sessionEntity.getSubject_id(),
+                        sessionEntity.getClass_topics(),
+                        sessionEntity.getClass_date(),
+                        sessionEntity.getClass_rate())).collect(Collectors.toList());
+
+        return allSessions;
     }
 
 }
