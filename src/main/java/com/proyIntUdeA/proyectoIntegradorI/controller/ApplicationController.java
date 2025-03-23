@@ -12,7 +12,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1/")
 public class ApplicationController {
     private ActivationService activationService;
-
+    
     public ApplicationController(ActivationService activationService) {
         this.activationService = activationService;
     }

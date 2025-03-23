@@ -67,7 +67,7 @@ public class PersonController {
     @PutMapping("/persons/activateTutor/{id}")
     public ResponseEntity<Person> activateTutor(@PathVariable("id") String id) {
         Person person = personService.getPersonById(id);
-        person.setUser_role("tutor");
+        person.setUser_role("Tutor");
         person = personService.updatePerson(id, person);
         return ResponseEntity.ok(person);
     }
