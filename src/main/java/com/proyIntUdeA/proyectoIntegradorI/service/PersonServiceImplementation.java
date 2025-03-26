@@ -3,6 +3,7 @@ package com.proyIntUdeA.proyectoIntegradorI.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ public class PersonServiceImplementation implements PersonService {
 
     @Override
     public Person savePerson(Person person) {
+        if(personRepository.findById(person.getUser_id()) == null){
+            return null;
+        }
         PersonEntity personEntity = new PersonEntity();
         BeanUtils.copyProperties(person, personEntity);
         personRepository.save(personEntity);
