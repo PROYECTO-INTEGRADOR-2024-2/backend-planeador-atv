@@ -72,6 +72,14 @@ public class PersonController {
         return ResponseEntity.ok(person);
     }
 
+    @PutMapping("/persons/activateAdmin/{id}")
+    public ResponseEntity<Person> activateAdmin(@PathVariable("id") String id) {
+        Person person = personService.getPersonById(id);
+        person.setUser_role("Admin");
+        person = personService.updatePerson(id, person);
+        return ResponseEntity.ok(person);
+    }
+
     @GetMapping("/persons/tutor")
     public List<Person> getAllTutors(){
         return personService.getAllTutors();
