@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
+import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
@@ -7,6 +8,7 @@ import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
@@ -114,5 +116,14 @@ public class SessionController {
         return sessionService.rateClass(rate.getClassId(), rate.getRate());
     }
 
+    @PutMapping("/cancelTuto/{id}")
+    public ResponseEntity<SessionEntity> cancelSession(@PathVariable("id") long id){
+        Session session = sessionService.getSessionById(id);
+        session.setClass_state("cancelada");
+        SessionEntity sessionEntity = new SessionEntity();
+        BeanUtils.copyProperties(session, sessionEntity);
+        sessionService.updateSession(id, sessionEntity);
+        return ResponseEntity.ok(sessionEntity);
+    }
 
 }
