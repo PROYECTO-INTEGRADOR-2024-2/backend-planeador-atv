@@ -22,9 +22,6 @@ public class PersonServiceImplementation implements PersonService {
 
     @Override
     public Person savePerson(Person person) {
-        if(personRepository.findById(person.getUser_id()) == null){
-            return null;
-        }
         PersonEntity personEntity = new PersonEntity();
         BeanUtils.copyProperties(person, personEntity);
         personRepository.save(personEntity);
