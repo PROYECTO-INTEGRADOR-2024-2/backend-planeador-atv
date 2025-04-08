@@ -84,4 +84,10 @@ public class PersonController {
     public List<Person> getAllTutors(){
         return personService.getAllTutors();
     }
+
+    @GetMapping("/persons/email/{email}")
+    public ResponseEntity<Boolean> emailExists(@PathVariable("email") String email) {
+        boolean exists = personService.emailExists(email);
+        return ResponseEntity.ok(exists);
+    }
 }

@@ -89,4 +89,14 @@ public class PersonServiceImplementation implements PersonService {
                 .collect(Collectors.toList());
         return tutors;
     }
+
+    public boolean emailExists(String email) {
+        List<PersonEntity> persons = personRepository.findAll();
+        for (PersonEntity person : persons) {
+            if (ObjectUtils.equals(person.getUserEmail(), email)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

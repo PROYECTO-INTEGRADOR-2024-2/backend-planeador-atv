@@ -16,4 +16,5 @@ public interface PersonService {
 
     Person updatePerson(String id, Person person);
     List<Person> getAllTutors();
+    boolean emailExists(String email);
 }
