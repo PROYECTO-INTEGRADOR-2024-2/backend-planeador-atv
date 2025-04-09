@@ -56,6 +56,7 @@ public class FileServiceImplementation implements FileService {
                            .url(fileDownloadUri)
                            .type(dbFile.getType())
                            .size(dbFile.getData().length).build();
+
                 }).collect(Collectors.toList());
 
         return files;

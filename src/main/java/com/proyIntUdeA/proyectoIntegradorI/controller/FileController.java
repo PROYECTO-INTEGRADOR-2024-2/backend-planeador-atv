@@ -33,7 +33,8 @@ public class FileController {
     public ResponseEntity<byte[]> getFile(@PathVariable UUID id) throws FileNotFoundException {
         FileEntity fileEntity = fileService.getFile(id).get();
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment: filename\"" +fileEntity.getName()+"\"")
+                .header(HttpHeaders.CONTENT_TYPE, fileEntity.getType())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +fileEntity.getName()+"\"")
                 .body(fileEntity.getData());
     }
 
