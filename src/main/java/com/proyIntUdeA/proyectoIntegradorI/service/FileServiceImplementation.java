@@ -22,12 +22,13 @@ public class FileServiceImplementation implements FileService {
     @Autowired
     private FileRepository fileRepository;
     @Override
-    public FileEntity store(MultipartFile file) throws IOException {
+    public FileEntity store(MultipartFile file, String userId) throws IOException {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         FileEntity fileEntity = FileEntity.builder()
                 .name(fileName)
                 .type(file.getContentType())
                 .data(file.getBytes())
+                .user_id(userId)
                 .build();
 
         return fileRepository.save(fileEntity);

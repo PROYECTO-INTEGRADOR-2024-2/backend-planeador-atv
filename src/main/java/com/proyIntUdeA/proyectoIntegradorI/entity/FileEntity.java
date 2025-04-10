@@ -21,6 +21,7 @@ public class FileEntity {
     private UUID id;
     private String name;
     private String type;
+    private String user_id;
     @Lob
     private byte[] data;
 

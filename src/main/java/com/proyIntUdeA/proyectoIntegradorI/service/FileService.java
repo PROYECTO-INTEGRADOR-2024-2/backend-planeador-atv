@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface FileService {
 
     //Va a permitir almacenar el archivo en la BD
-    FileEntity store(MultipartFile file) throws IOException;
+    FileEntity store(MultipartFile file, String userId) throws IOException;
 
     //Descargar archivo, excepcion archivo no encoentrado
     Optional<FileEntity> getFile(UUID id) throws FileNotFoundException;

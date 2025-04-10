@@ -24,8 +24,8 @@ public class FileController {
     private FileService fileService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        fileService.store(file);
+    public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("userId") String userId) throws IOException {
+        fileService.store(file, userId);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage("Archivo subido de manera HD"));
     }
 
