@@ -18,5 +18,5 @@ public class UserXSubjectEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long subject_tutor_id;
     private String user_id;
-    private String subject_id;
+    private Long subject_id;
 }

@@ -16,5 +16,4 @@ public class ApplicationActivationTutor {
     private String user_id;
     private String application_state;
     private Date application_date;
-
 }

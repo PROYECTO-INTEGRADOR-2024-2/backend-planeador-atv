@@ -12,4 +12,5 @@ public interface SubjectTutorService {
     UserXSubject getSubjectTutorById(Long id);
     List<UserXSubjectEntity> getAllSubjectTutor();
     boolean deleteSubjectTutorById(Long id);
+    List<UserXSubject> saveSubjectTutorList(String user_id, List<Long> subjectIds);
 }
