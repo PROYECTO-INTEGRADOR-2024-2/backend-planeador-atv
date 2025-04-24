@@ -28,7 +28,7 @@ public class FileServiceImplementation implements FileService {
                 .name(fileName)
                 .type(file.getContentType())
                 .data(file.getBytes())
-                .user_id(userId)
+                .userId(userId)
                 .build();
 
         return fileRepository.save(fileEntity);
@@ -56,7 +56,7 @@ public class FileServiceImplementation implements FileService {
                            .name(dbFile.getName())
                            .url(fileDownloadUri)
                            .type(dbFile.getType())
-                           .userId(dbFile.getUser_id())
+                           .userId(dbFile.getUserId())
                            .size(dbFile.getData().length).build();
 
                 }).collect(Collectors.toList());

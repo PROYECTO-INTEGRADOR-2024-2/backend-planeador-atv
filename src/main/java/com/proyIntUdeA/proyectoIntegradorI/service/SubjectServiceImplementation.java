@@ -30,9 +30,9 @@ public class SubjectServiceImplementation implements SubjectService{
         List<SubjectEntity> subjectEntities = subjectRepository.findAll();
 
         return subjectEntities.stream().map(subjectEntity -> new Subject(
-                subjectEntity.getSubject_id(),
-                subjectEntity.getDegree_id(),
-                subjectEntity.getSubject_name())).collect(Collectors.toList());
+                subjectEntity.getSubjectId(),
+                subjectEntity.getDegreeId(),
+                subjectEntity.getSubjectName())).collect(Collectors.toList());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class SubjectServiceImplementation implements SubjectService{
     @Override
     public Subject updateSubject(long id, Subject subject) {
         SubjectEntity subjectEntity = subjectRepository.findById(id).get();
-        subjectEntity.setSubject_name(subject.getSubject_name());
+        subjectEntity.setSubjectName(subject.getSubjectName());
 
         subjectRepository.save(subjectEntity);
         return subject;

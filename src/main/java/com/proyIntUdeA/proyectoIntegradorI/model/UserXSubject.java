@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserXSubject {
-    private Long subject_tutor_id;
-    private String user_id;
-    private Long subject_id;
+    private Long subjectTutorId;
+    private String userId;
+    private Long subjectId;
 }

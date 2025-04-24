@@ -44,16 +44,16 @@ public class SessionServiceImplementation implements SessionService {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
         return sessionEntities.stream().map(sessionEntity -> {
-            String studentName = getPersonFullName(sessionEntity.getStudent_id());
+            String studentName = getPersonFullName(sessionEntity.getStudentId());
             return new Session(
-                    sessionEntity.getClass_id(),
-                    sessionEntity.getClass_state(),
+                    sessionEntity.getClassId(),
+                    sessionEntity.getClassState(),
                     studentName,
-                    sessionEntity.getTutor_id(),
-                    sessionEntity.getSubject_id(),
-                    sessionEntity.getClass_topics(),
-                    sessionEntity.getClass_date(),
-                    sessionEntity.getClass_rate());
+                    sessionEntity.getTutorId(),
+                    sessionEntity.getSubjectId(),
+                    sessionEntity.getClassTopics(),
+                    sessionEntity.getClassDate(),
+                    sessionEntity.getClassRate());
         }).collect(Collectors.toList());
     }
 
@@ -84,13 +84,13 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionEntityOpt = sessionRepository.findById(id);
         if (sessionEntityOpt.isPresent()) {
             SessionEntity sessionEntity = sessionEntityOpt.get();
-            sessionEntity.setClass_state(session.getClass_state());
-            sessionEntity.setStudent_id(session.getStudent_id());
-            sessionEntity.setTutor_id(session.getTutor_id());
-            sessionEntity.setSubject_id(session.getSubject_id());
-            sessionEntity.setClass_topics(session.getClass_topics());
-            sessionEntity.setClass_date(session.getClass_date());
-            sessionEntity.setClass_rate(session.getClass_rate());
+            sessionEntity.setClassState(session.getClassState());
+            sessionEntity.setStudentId(session.getStudentId());
+            sessionEntity.setTutorId(session.getTutorId());
+            sessionEntity.setStudentId(session.getStudentId());
+            sessionEntity.setClassTopics(session.getClassTopics());
+            sessionEntity.setClassDate(session.getClassDate());
+            sessionEntity.setClassRate(session.getClassRate());
 
             return sessionRepository.save(sessionEntity);
         }
@@ -102,18 +102,18 @@ public class SessionServiceImplementation implements SessionService {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
         return sessionEntities.stream()
-                .filter(sessionEntity -> "pendiente".equals(sessionEntity.getClass_state()))
+                .filter(sessionEntity -> "pendiente".equals(sessionEntity.getClassState()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
-                            sessionEntity.getTutor_id(),
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getTutorId(),
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 }).collect(Collectors.toList());
     }
 
@@ -123,18 +123,18 @@ public class SessionServiceImplementation implements SessionService {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
         return sessionEntities.stream()
-                .filter(sessionEntity -> id.equals(sessionEntity.getTutor_id()))
+                .filter(sessionEntity -> id.equals(sessionEntity.getTutorId()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
-                            sessionEntity.getTutor_id(),
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getTutorId(),
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 })
                 .collect(Collectors.toList());
     }
@@ -144,20 +144,20 @@ public class SessionServiceImplementation implements SessionService {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
         return sessionEntities.stream()
-                .filter(sessionEntity -> id.equals(sessionEntity.getStudent_id()))
+                .filter(sessionEntity -> id.equals(sessionEntity.getStudentId()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
-                    String tutorName = getPersonFullName(sessionEntity.getTutor_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
+                    String tutorName = getPersonFullName(sessionEntity.getTutorId());
 
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
                             tutorName,
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 })
                 .collect(Collectors.toList());
     }
@@ -170,8 +170,8 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
-            sessionEntity.setClass_state("aceptada");
-            sessionEntity.setTutor_id(tutorId);
+            sessionEntity.setClassState("aceptada");
+            sessionEntity.setTutorId(tutorId);
             updateSession(sessionId, sessionEntity);
             return true;
         }
@@ -191,8 +191,8 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
-            sessionEntity.setClass_state("pendiente");
-            sessionEntity.setTutor_id("0000");
+            sessionEntity.setClassState("pendiente");
+            sessionEntity.setTutorId("0000");
             updateSession(sessionId, sessionEntity);
             return true;
         }
@@ -206,21 +206,21 @@ public class SessionServiceImplementation implements SessionService {
 
         return sessionEntities.stream()
                 .filter(sessionEntity ->
-                        sessionEntity.getClass_date().toInstant().isBefore(now) &&
-                                id.equals(sessionEntity.getStudent_id()))
+                        sessionEntity.getClassDate().toInstant().isBefore(now) &&
+                                id.equals(sessionEntity.getStudentId()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
-                    String tutorName = getPersonFullName(sessionEntity.getTutor_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
+                    String tutorName = getPersonFullName(sessionEntity.getTutorId());
 
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
                             tutorName,
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 })
                 .collect(Collectors.toList());
     }
@@ -232,21 +232,21 @@ public class SessionServiceImplementation implements SessionService {
 
         return sessionEntities.stream()
                 .filter(sessionEntity ->
-                        sessionEntity.getClass_date().toInstant().isAfter(now) &&
-                                id.equals(sessionEntity.getStudent_id()))
+                        sessionEntity.getClassDate().toInstant().isAfter(now) &&
+                                id.equals(sessionEntity.getStudentId()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
-                    String tutorName = getPersonFullName(sessionEntity.getTutor_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
+                    String tutorName = getPersonFullName(sessionEntity.getTutorId());
 
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
                             tutorName,
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 })
                 .collect(Collectors.toList());
     }
@@ -258,20 +258,20 @@ public class SessionServiceImplementation implements SessionService {
 
         return sessionEntities.stream()
                 .filter(sessionEntity ->
-                        sessionEntity.getClass_date().toInstant().isBefore(now) &&
-                                id.equals(sessionEntity.getTutor_id()))
+                        sessionEntity.getClassDate().toInstant().isBefore(now) &&
+                                id.equals(sessionEntity.getTutorId()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
 
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
-                            sessionEntity.getTutor_id(),
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getTutorId(),
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 })
                 .collect(Collectors.toList());
     }
@@ -283,20 +283,20 @@ public class SessionServiceImplementation implements SessionService {
 
         return sessionEntities.stream()
                 .filter(sessionEntity ->
-                        sessionEntity.getClass_date().toInstant().isAfter(now) &&
-                                id.equals(sessionEntity.getTutor_id()))
+                        sessionEntity.getClassDate().toInstant().isAfter(now) &&
+                                id.equals(sessionEntity.getTutorId()))
                 .map(sessionEntity -> {
-                    String studentName = getPersonFullName(sessionEntity.getStudent_id());
+                    String studentName = getPersonFullName(sessionEntity.getStudentId());
 
                     return new Session(
-                            sessionEntity.getClass_id(),
-                            sessionEntity.getClass_state(),
+                            sessionEntity.getClassId(),
+                            sessionEntity.getClassState(),
                             studentName,
-                            sessionEntity.getTutor_id(),
-                            sessionEntity.getSubject_id(),
-                            sessionEntity.getClass_topics(),
-                            sessionEntity.getClass_date(),
-                            sessionEntity.getClass_rate());
+                            sessionEntity.getTutorId(),
+                            sessionEntity.getSubjectId(),
+                            sessionEntity.getClassTopics(),
+                            sessionEntity.getClassDate(),
+                            sessionEntity.getClassRate());
                 })
                 .collect(Collectors.toList());
     }
@@ -306,7 +306,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(classId);
         if (sessionOpt.isPresent()) {
             SessionEntity session = sessionOpt.get();
-            session.setClass_rate(rate);
+            session.setClassRate(rate);
             SessionEntity saved = sessionRepository.save(session);
             return saved != null;
         }
@@ -318,7 +318,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(classId);
         if (sessionOpt.isPresent()) {
             SessionEntity session = sessionOpt.get();
-            session.setClass_state("realizada");
+            session.setClassState("realizada");
             SessionEntity saved = sessionRepository.save(session);
             return saved != null;
         }
@@ -330,7 +330,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(classId);
         if (sessionOpt.isPresent()) {
             SessionEntity session = sessionOpt.get();
-            session.setClass_state("no realizada");
+            session.setClassState("no realizada");
             SessionEntity saved = sessionRepository.save(session);
             return saved != null;
         }
@@ -341,7 +341,7 @@ public class SessionServiceImplementation implements SessionService {
 
     private String getPersonFullName(String personId) {
         Optional<PersonEntity> personOpt = personRepository.findById(personId);
-        return personOpt.map(person -> person.getUsername() + " " + person.getUser_lastname())
+        return personOpt.map(person -> person.getUsername() + " " + person.getUserLastname())
                 .orElse("Usuario no encontrado");
     }
 

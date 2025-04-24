@@ -119,7 +119,7 @@ public class SessionController {
     @PutMapping("/cancelTuto/{id}")
     public ResponseEntity<SessionEntity> cancelSession(@PathVariable("id") long id){
         Session session = sessionService.getSessionById(id);
-        session.setClass_state("cancelada");
+        session.setClassState("cancelada");
         SessionEntity sessionEntity = new SessionEntity();
         BeanUtils.copyProperties(session, sessionEntity);
         sessionService.updateSession(id, sessionEntity);

@@ -63,7 +63,7 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
         List<UserXSubjectEntity> subjectTutorEntities = subjectTutorRepository.findAll();
 
         return subjectTutorEntities.stream().map(userXSubjectEntity -> new UserXSubjectEntity(
-                userXSubjectEntity.getSubject_tutor_id(),
+                userXSubjectEntity.getSubjectTutorId(),
                 userXSubjectEntity.getUserId(),
                 userXSubjectEntity.getSubjectId())).collect(Collectors.toList());
     }

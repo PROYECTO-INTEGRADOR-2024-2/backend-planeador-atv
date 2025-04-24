@@ -17,9 +17,9 @@ import java.util.Date;
 public class ApplicationActivationTutorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long application_tutor_id;
-    private String user_id;
+    private long applicationTutorId;
+    private String userId;
     private String userSemester;
-    private String application_state;
-    private Date application_date;
+    private String applicationState;
+    private Date applicationDate;
 }

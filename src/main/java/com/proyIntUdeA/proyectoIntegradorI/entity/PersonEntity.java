@@ -25,23 +25,23 @@ import lombok.NoArgsConstructor;
 public class PersonEntity implements UserDetails {
 
     @Id
-    private String user_id;
-    private String user_id_type;
+    private String userId;
+    private String userIdType;
     // @Column(name = "user_name", nullable = false)
-    private String user_firstname;
-    private String user_lastname;
+    private String userFirstname;
+    private String userLastname;
     @Column(name = "user_email", nullable = false)
     private String userEmail;
-    private String user_password;
-    private String user_phone;
-    private String user_department;
-    private String user_city;
-    private String user_state;
-    private String user_role;
+    private String userPassword;
+    private String userPhone;
+    private String userDepartment;
+    private String userCity;
+    private String userState;
+    private String userRole;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user_role));
+        return List.of(new SimpleGrantedAuthority(userRole));
     }
 
     @Override
@@ -66,11 +66,11 @@ public class PersonEntity implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user_password;
+        return userPassword;
     }
 
     @Override
     public String getUsername() {
-        return getUser_firstname();
+        return getUserFirstname();
     }
 }

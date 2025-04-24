@@ -33,10 +33,10 @@ public class ActivationServiceImplementation implements ActivationService {
         List<ApplicationActivationTutorEntity> applicationEntities = activationRepository.findAll();
 
         return applicationEntities.stream().map(appEntity -> new ApplicationActivationTutor(
-                appEntity.getApplication_tutor_id(),
-                appEntity.getUser_id(),
-                appEntity.getApplication_state(),
-                appEntity.getApplication_date())).collect(Collectors.toList());
+                appEntity.getApplicationTutorId(),
+                appEntity.getUserId(),
+                appEntity.getApplicationState(),
+                appEntity.getApplicationDate())).collect(Collectors.toList());
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ActivationServiceImplementation implements ActivationService {
     @Override
     public Optional<ApplicationActivationTutorEntity> acceptRequest(Long id) {
         Optional<ApplicationActivationTutorEntity> app = activationRepository.findById(id);
-        app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplication_state("aceptada"));
+        app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplicationState("aceptada"));
         activationRepository.save(app.get());
         return app;
     }
@@ -65,7 +65,7 @@ public class ActivationServiceImplementation implements ActivationService {
     @Override
     public Optional<ApplicationActivationTutorEntity> rejectRequest(Long id) {
         Optional<ApplicationActivationTutorEntity> app = activationRepository.findById(id);
-        app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplication_state("rechazada"));
+        app.ifPresent(applicationActivationTutorEntity -> applicationActivationTutorEntity.setApplicationState("rechazada"));
         activationRepository.save(app.get());
         return app;
     }

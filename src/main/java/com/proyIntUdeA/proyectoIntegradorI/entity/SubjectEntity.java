@@ -15,7 +15,7 @@ import lombok.Setter;
 public class SubjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long subject_id;
-    private String subject_name;
-    private long degree_id;
+    private long subjectId;
+    private String subjectName;
+    private long degreeId;
 }
