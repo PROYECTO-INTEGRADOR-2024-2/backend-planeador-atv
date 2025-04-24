@@ -8,6 +8,7 @@ import lombok.Data;
 public class ResponseFile {
     private String name;
     private String url;
+    private String userId;
     private String type;
     private long size;
 }
