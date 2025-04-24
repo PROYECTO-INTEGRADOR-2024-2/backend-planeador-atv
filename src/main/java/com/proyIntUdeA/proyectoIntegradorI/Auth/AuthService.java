@@ -34,17 +34,17 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         PersonEntity person = PersonEntity.builder()
-                .user_firstname(request.getUser_firstname())
-                .user_id(request.getUser_id())
-                .user_id_type(request.getUser_id_type())
-                .user_lastname(request.getUser_lastname())
+                .userFirstname(request.getUser_firstname())
+                .userId(request.getUser_id())
+                .userIdType(request.getUser_id_type())
+                .userLastname(request.getUser_lastname())
                 .userEmail(request.getUserEmail())
-                .user_password(passwordEncoder.encode(request.getUser_password()))
-                .user_phone(request.getUser_phone())
-                .user_department(request.getUser_department())
-                .user_city(request.getUser_city())
-                .user_state(request.getUser_state())
-                .user_role(request.getUser_role())
+                .userPassword(passwordEncoder.encode(request.getUser_password()))
+                .userPhone(request.getUser_phone())
+                .userDepartment(request.getUser_department())
+                .userCity(request.getUser_city())
+                .userState(request.getUser_state())
+                .userRole(request.getUser_role())
                 .build();
 
         personRepository.save(person);

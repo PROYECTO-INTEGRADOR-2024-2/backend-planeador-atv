@@ -67,7 +67,7 @@ public class PersonController {
     @PutMapping("/persons/activateTutor/{id}")
     public ResponseEntity<Person> activateTutor(@PathVariable("id") String id) {
         Person person = personService.getPersonById(id);
-        person.setUser_role("Tutor");
+        person.setUserRole("Tutor");
         person = personService.updatePerson(id, person);
         return ResponseEntity.ok(person);
     }
@@ -75,7 +75,7 @@ public class PersonController {
     @PutMapping("/persons/activateAdmin/{id}")
     public ResponseEntity<Person> activateAdmin(@PathVariable("id") String id) {
         Person person = personService.getPersonById(id);
-        person.setUser_role("Admin");
+        person.setUserRole("Admin");
         person = personService.updatePerson(id, person);
         return ResponseEntity.ok(person);
     }

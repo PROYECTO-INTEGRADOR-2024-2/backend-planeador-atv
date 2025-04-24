@@ -16,9 +16,9 @@ import lombok.Setter;
 public class DegreeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public long degree_id;
-    public String degree_name;
-    public String degree_modality;
-    public String degree_department;
+    public long degreeId;
+    public String degreeName;
+    public String degreeModality;
+    public String degreeDepartment;
 }
 

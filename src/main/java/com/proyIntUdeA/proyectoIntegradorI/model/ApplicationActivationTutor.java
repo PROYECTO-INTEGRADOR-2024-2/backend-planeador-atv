@@ -12,8 +12,8 @@ import java.util.Date;
 @Getter
 @Setter
 public class ApplicationActivationTutor {
-    private long application_tutor_id;
-    private String user_id;
-    private String application_state;
-    private Date application_date;
+    private long applicationTutorId;
+    private String userId;
+    private String applicationId;
+    private Date applicationDate;
 }

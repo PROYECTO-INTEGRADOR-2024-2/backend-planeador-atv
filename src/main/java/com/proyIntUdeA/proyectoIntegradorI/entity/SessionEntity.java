@@ -13,13 +13,13 @@ import java.util.Date;
 public class SessionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long class_id;
-    private String class_state;
-    private String student_id;
-    private String tutor_id;
-    private long subject_id;
-    private String class_topics;
+    private long classId;
+    private String classState;
+    private String studentId;
+    private String tutorId;
+    private long subjectId;
+    private String classTopics;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private Date class_date;
-    private float class_rate;
+    private Date classDate;
+    private float classRate;
 }

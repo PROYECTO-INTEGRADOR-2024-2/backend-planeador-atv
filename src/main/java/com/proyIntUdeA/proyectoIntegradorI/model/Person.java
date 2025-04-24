@@ -10,15 +10,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Person {
-    private String user_id;
-    private String user_id_type;
-    private String user_firstname;
-    private String user_lastname;
+    private String userId;
+    private String userIdType;
+    private String userFirstname;
+    private String userLastname;
     private String userEmail;
-    private String user_password;
-    private String user_phone;
-    private String user_department;
-    private String user_city;
-    private String user_state;
-    private String user_role;
+    private String userPassword;
+    private String userPhone;
+    private String userDepartment;
+    private String userCity;
+    private String userState;
+    private String userRole;
 }

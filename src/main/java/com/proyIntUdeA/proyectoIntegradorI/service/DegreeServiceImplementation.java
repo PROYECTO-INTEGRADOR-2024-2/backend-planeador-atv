@@ -27,10 +27,10 @@ public class DegreeServiceImplementation implements DegreeService{
         List<DegreeEntity> degreeEntities = degreeRepository.findAll();
 
         return degreeEntities.stream().map(degreeEntity -> new Degree(
-                (long) degreeEntity.getDegree_id(),
-                degreeEntity.getDegree_name(),
-                degreeEntity.getDegree_modality(),
-                degreeEntity.getDegree_department())).collect(Collectors.toList());
+                (long) degreeEntity.getDegreeId(),
+                degreeEntity.getDegreeName(),
+                degreeEntity.getDegreeModality(),
+                degreeEntity.getDegreeDepartment())).collect(Collectors.toList());
     }
 
     @Override
@@ -55,9 +55,9 @@ public class DegreeServiceImplementation implements DegreeService{
     public Degree updateDegree(long id, Degree degree) {
 
         DegreeEntity degreeEntity = degreeRepository.findById(id).get();
-        degreeEntity.setDegree_name(degree.getDegree_name());
-        degreeEntity.setDegree_modality(degree.getDegree_modality());
-        degreeEntity.setDegree_department(degree.getDegree_department());
+        degreeEntity.setDegreeName(degree.getDegreeName());
+        degreeEntity.setDegreeModality(degree.getDegreeModality());
+        degreeEntity.setDegreeDepartment(degree.getDegreeDepartment());
 
         degreeRepository.save(degreeEntity);
         return degree;

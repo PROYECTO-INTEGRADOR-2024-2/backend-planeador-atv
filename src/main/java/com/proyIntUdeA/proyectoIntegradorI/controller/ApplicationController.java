@@ -6,11 +6,13 @@ import com.proyIntUdeA.proyectoIntegradorI.model.UserSubjectRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
 import com.proyIntUdeA.proyectoIntegradorI.service.ActivationService;
 import com.proyIntUdeA.proyectoIntegradorI.service.SubjectTutorService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -44,11 +46,25 @@ public class ApplicationController {
     }
 
     @PostMapping("/application/subjects")
-    public ResponseEntity<List<UserXSubject>> addUserSubject(@RequestBody UserSubjectRequest userSubjectRequest){
+    public ResponseEntity<List<UserXSubject>> addUserSubject(@RequestBody UserSubjectRequest userSubjectRequest) {
+        List<Long> newSubjectIds = userSubjectRequest.getSubject_ids().stream()
+                .filter(subjectId -> {
+                    try {
+                        subjectTutorService.getUserXSubjectOrThrow(userSubjectRequest.getUser_id(), subjectId);
+                        return false;
+                    } catch (EntityNotFoundException e) {
+                        return true;
+                    }
+                })
+                .collect(Collectors.toList());
+        if (newSubjectIds.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
         List<UserXSubject> saved = subjectTutorService.saveSubjectTutorList(
-                        userSubjectRequest.getUser_id(),
-                        userSubjectRequest.getSubject_ids()
-                );
-                return ResponseEntity.ok(saved);
+                userSubjectRequest.getUser_id(),
+                newSubjectIds
+        );
+
+        return ResponseEntity.ok(saved);
     }
 }
