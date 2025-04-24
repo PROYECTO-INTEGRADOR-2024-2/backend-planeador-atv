@@ -3,10 +3,12 @@ package com.proyIntUdeA.proyectoIntegradorI.service;
 import com.proyIntUdeA.proyectoIntegradorI.entity.UserXSubjectEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
 import com.proyIntUdeA.proyectoIntegradorI.repository.SubjectTutorRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,8 +25,8 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
         List<UserXSubjectEntity> entities = subjectIds.stream()
                 .map(subjectId -> {
                     UserXSubjectEntity entity = new UserXSubjectEntity();
-                    entity.setSubject_id(subjectId);
-                    entity.setUser_id(userId);
+                    entity.setSubjectId(subjectId);
+                    entity.setUserId(userId);
                     return entity;
                 }).collect(Collectors.toList());
 
@@ -45,6 +47,12 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
         return userXSubject;
     }
 
+    public UserXSubjectEntity getUserXSubjectOrThrow(String userId, Long subjectId) {
+        return subjectTutorRepository.findOptionalByUserIdAndSubjectId(userId, subjectId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No se encontró UserXSubject con userId: " + userId + " y subjectId: " + subjectId));
+    }
+
     @Override
     public UserXSubject getSubjectTutorById(Long id) {
         return null;
@@ -56,8 +64,8 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
 
         return subjectTutorEntities.stream().map(userXSubjectEntity -> new UserXSubjectEntity(
                 userXSubjectEntity.getSubject_tutor_id(),
-                userXSubjectEntity.getUser_id(),
-                userXSubjectEntity.getSubject_id())).collect(Collectors.toList());
+                userXSubjectEntity.getUserId(),
+                userXSubjectEntity.getSubjectId())).collect(Collectors.toList());
     }
 
     @Override

@@ -19,6 +19,7 @@ public class ApplicationActivationTutorEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long application_tutor_id;
     private String user_id;
+    private String userSemester;
     private String application_state;
     private Date application_date;
 }

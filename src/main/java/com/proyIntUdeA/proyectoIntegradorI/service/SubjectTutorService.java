@@ -5,6 +5,7 @@ import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface SubjectTutorService {
@@ -13,4 +14,5 @@ public interface SubjectTutorService {
     List<UserXSubjectEntity> getAllSubjectTutor();
     boolean deleteSubjectTutorById(Long id);
     List<UserXSubject> saveSubjectTutorList(String user_id, List<Long> subjectIds);
+    UserXSubjectEntity getUserXSubjectOrThrow(String user_id, Long subject_id);
 }
