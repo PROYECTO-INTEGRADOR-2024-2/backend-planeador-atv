@@ -12,5 +12,5 @@ import lombok.Setter;
 public class UserXSubject {
     private Long subject_tutor_id;
     private String user_id;
-    private String subject_id;
+    private Long subject_id;
 }

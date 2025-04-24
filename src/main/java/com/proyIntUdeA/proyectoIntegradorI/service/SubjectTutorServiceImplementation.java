@@ -17,6 +17,26 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
     public SubjectTutorServiceImplementation(SubjectTutorRepository subjectTutorRepository) {
         this.subjectTutorRepository = subjectTutorRepository;
     }
+
+    @Override
+    public List<UserXSubject> saveSubjectTutorList(String userId, List<Long> subjectIds){
+        List<UserXSubjectEntity> entities = subjectIds.stream()
+                .map(subjectId -> {
+                    UserXSubjectEntity entity = new UserXSubjectEntity();
+                    entity.setSubject_id(subjectId);
+                    entity.setUser_id(userId);
+                    return entity;
+                }).collect(Collectors.toList());
+
+        subjectTutorRepository.saveAll(entities);
+
+        return entities.stream().map(entity -> {
+            UserXSubject model = new UserXSubject();
+            BeanUtils.copyProperties(entity, model);
+            return model;
+        }).collect(Collectors.toList());
+    }
+
     @Override
     public UserXSubject saveSubjectTutor(UserXSubject userXSubject) {
         UserXSubjectEntity userXSubjectEntity = new UserXSubjectEntity();
