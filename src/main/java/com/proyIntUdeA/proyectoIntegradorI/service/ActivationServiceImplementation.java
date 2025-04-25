@@ -35,6 +35,7 @@ public class ActivationServiceImplementation implements ActivationService {
         return applicationEntities.stream().map(appEntity -> new ApplicationActivationTutor(
                 appEntity.getApplicationTutorId(),
                 appEntity.getUserId(),
+                appEntity.getUserSemester(),
                 appEntity.getApplicationState(),
                 appEntity.getApplicationDate())).collect(Collectors.toList());
     }
