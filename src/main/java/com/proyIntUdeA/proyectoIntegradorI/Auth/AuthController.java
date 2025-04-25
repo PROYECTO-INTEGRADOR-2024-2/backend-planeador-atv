@@ -39,7 +39,7 @@ public class AuthController {
         List<Person> personas = personService.getAllPersons();
 
         for (Person person : personas) {
-            if (request.getUser_id().equals(person.getUserId())
+            if (request.getUserId().equals(person.getUserId())
                     || request.getUserEmail().equals(person.getUserEmail())) {
                 return ResponseEntity.badRequest().build();
             }

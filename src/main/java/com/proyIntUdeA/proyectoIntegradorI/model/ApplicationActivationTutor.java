@@ -14,6 +14,7 @@ import java.util.Date;
 public class ApplicationActivationTutor {
     private long applicationTutorId;
     private String userId;
-    private String applicationId;
+    private String applicationState;
+    private String userSemester;
     private Date applicationDate;
 }
