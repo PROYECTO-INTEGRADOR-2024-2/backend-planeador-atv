@@ -1,7 +1,5 @@
 package com.proyIntUdeA.proyectoIntegradorI.security;
 
-import static java.util.Arrays.parallelSort;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +41,13 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailService() {
-        return user_name -> personRepository.findByUserEmail(user_name)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return user_name -> {
+            System.out.println("Looking for user with email: " + user_name);
+            return personRepository.findByUserEmail(user_name)
+                    .orElseThrow(() -> {
+                        System.out.println("User not found in the database: " + user_name);
+                        return new UsernameNotFoundException("User not found");
+                    });
+        };
     }
 }
