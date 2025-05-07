@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
@@ -22,6 +23,7 @@ public interface SessionService {
     List<Session> getAllPendingSessionsStudent(String id);
     List<Session> getAllPastSessionsTutor(String id);
     List<Session> getAllPendingSessionsTutor(String id);
+    List<BasicTutoringInfoDTO> getTutoringInfo(String id);
 
     // Acciones de los encuentros
     //Calificar
