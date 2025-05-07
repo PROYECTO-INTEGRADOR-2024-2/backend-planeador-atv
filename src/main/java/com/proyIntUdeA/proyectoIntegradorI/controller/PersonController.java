@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +24,7 @@ import com.proyIntUdeA.proyectoIntegradorI.model.Person;
 import com.proyIntUdeA.proyectoIntegradorI.service.PersonService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -77,6 +82,51 @@ public class PersonController {
         Person person = personService.getPersonById(id);
         person.setUserRole("Admin");
         person = personService.updatePerson(id, person);
+        return ResponseEntity.ok(person);
+    }
+
+    @PutMapping("/persons/disableUser/{id}")
+    public ResponseEntity<Person> disableUser(
+            @PathVariable("id") String id,
+            HttpServletRequest request
+    ) {
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("Authorization Header: " + authHeader);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("Missing or malformed Authorization header");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924") // Tu SECRET_KEY
+                    .parseClaimsJws(token)
+                    .getBody();
+            System.out.println("Token parsed successfully");
+            System.out.println("Claims: " + claims);
+        } catch (Exception e) {
+            System.out.println("Token parsing failed: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        String role = (String) claims.get("user_role");
+        System.out.println("Role from token: " + role);
+
+        if (role == null || !role.equalsIgnoreCase("admin")) {
+            System.out.println("Access denied: user_role is not admin");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can disable users");
+        }
+
+        System.out.println("User authorized as admin. Disabling user with ID: " + id);
+
+        Person person = personService.getPersonById(id);
+        person.setUserState("0");
+        person = personService.updatePerson(id, person);
+
+        System.out.println("User successfully disabled");
         return ResponseEntity.ok(person);
     }
 

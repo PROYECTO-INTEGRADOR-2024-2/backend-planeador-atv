@@ -47,7 +47,8 @@ public class JwtService {
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaim(token, Claims::getSubject);
+        Claims claims = getAllClaims(token);
+        return claims.get("user_email", String.class);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
