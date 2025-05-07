@@ -85,112 +85,93 @@ public class PersonController {
     }
 
     @PutMapping("/persons/disableUser/{id}")
-    public ResponseEntity<String> disableUser(
+    public ResponseEntity<Map<String, String>> disableUser(
             @PathVariable("id") String id,
             HttpServletRequest request
     ) {
         String authHeader = request.getHeader("Authorization");
-        System.out.println("Authorization Header: " + authHeader);
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("Missing or malformed Authorization header");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+                    .body(Map.of("message", "Token missing or invalid"));
         }
 
         String token = authHeader.substring(7);
         Claims claims;
         try {
             claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924") // Tu SECRET_KEY
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            System.out.println("Invalid token: " + e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
+                    .body(Map.of("message", "Invalid token"));
         }
 
         String role = (String) claims.get("user_role");
-        System.out.println("Token Role: " + role);
-
         if (role == null || !role.equalsIgnoreCase("admin")) {
-            System.out.println("Access denied for role: " + role);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body("Only admin can disable users");
+                    .body(Map.of("message", "Only admin can disable users"));
         }
 
         try {
             Person person = personService.getPersonById(id);
             person.setUserState("0");
             personService.updatePerson(id, person);
-            System.out.println("User with ID " + id + " disabled successfully");
             return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body("User disabled successfully");
+                    .ok(Map.of("message", "User disabled successfully"));
         } catch (Exception e) {
-            System.out.println("Error disabling user: " + e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error disabling user");
+                    .body(Map.of("message", "Error disabling user"));
         }
     }
 
+
     @PutMapping("/persons/enableUser/{id}")
-    public ResponseEntity<String> enableUser(
+    public ResponseEntity<Map<String, String>> enableUser(
             @PathVariable("id") String id,
             HttpServletRequest request
     ) {
         String authHeader = request.getHeader("Authorization");
-        System.out.println("Authorization Header: " + authHeader);
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("Missing or malformed Authorization header");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+                    .body(Map.of("message", "Token missing or invalid"));
         }
 
         String token = authHeader.substring(7);
         Claims claims;
         try {
             claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924") // Tu SECRET_KEY
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            System.out.println("Invalid token: " + e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
+                    .body(Map.of("message", "Invalid token"));
         }
 
         String role = (String) claims.get("user_role");
-        System.out.println("Token Role: " + role);
-
         if (role == null || !role.equalsIgnoreCase("admin")) {
-            System.out.println("Access denied for role: " + role);
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body("Only admin can enable users");
+                    .body(Map.of("message", "Only admin can enable users"));
         }
 
         try {
             Person person = personService.getPersonById(id);
             person.setUserState("1");
             personService.updatePerson(id, person);
-            System.out.println("User with ID " + id + " enabled successfully");
             return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body("User enabled successfully");
+                    .ok(Map.of("message", "User enabled successfully"));
         } catch (Exception e) {
-            System.out.println("Error enabling user: " + e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error enabling user");
+                    .body(Map.of("message", "Error enabling user"));
         }
     }
 
