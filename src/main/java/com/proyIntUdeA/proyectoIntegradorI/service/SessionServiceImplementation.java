@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
@@ -12,8 +13,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -350,4 +353,17 @@ public class SessionServiceImplementation implements SessionService {
         BeanUtils.copyProperties(entity, session);
         return session;
     }
+    @Override
+    public List<BasicTutoringInfoDTO> getTutoringInfo(String studentId) {
+        List<Object[]> rawData = sessionRepository.findBasicTutoInfoRaw(studentId);
+        return rawData.stream().map(row -> new BasicTutoringInfoDTO(
+                (Date) row[0],
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                (String) row[4],
+                (String) row[5]
+        )).collect(Collectors.toList());
+    }
+
 }

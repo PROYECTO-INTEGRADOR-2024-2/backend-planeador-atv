@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,7 @@ import com.proyIntUdeA.proyectoIntegradorI.model.Person;
 import com.proyIntUdeA.proyectoIntegradorI.service.PersonService;
 
 import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -79,6 +83,98 @@ public class PersonController {
         person = personService.updatePerson(id, person);
         return ResponseEntity.ok(person);
     }
+
+    @PutMapping("/persons/disableUser/{id}")
+    public ResponseEntity<Map<String, String>> disableUser(
+            @PathVariable("id") String id,
+            HttpServletRequest request
+    ) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Token missing or invalid"));
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid token"));
+        }
+
+        String role = (String) claims.get("user_role");
+        if (role == null || !role.equalsIgnoreCase("admin")) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Only admin can disable users"));
+        }
+
+        try {
+            Person person = personService.getPersonById(id);
+            person.setUserState("0");
+            personService.updatePerson(id, person);
+            return ResponseEntity
+                    .ok(Map.of("message", "User disabled successfully"));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error disabling user"));
+        }
+    }
+
+
+    @PutMapping("/persons/enableUser/{id}")
+    public ResponseEntity<Map<String, String>> enableUser(
+            @PathVariable("id") String id,
+            HttpServletRequest request
+    ) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Token missing or invalid"));
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid token"));
+        }
+
+        String role = (String) claims.get("user_role");
+        if (role == null || !role.equalsIgnoreCase("admin")) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Only admin can enable users"));
+        }
+
+        try {
+            Person person = personService.getPersonById(id);
+            person.setUserState("1");
+            personService.updatePerson(id, person);
+            return ResponseEntity
+                    .ok(Map.of("message", "User enabled successfully"));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error enabling user"));
+        }
+    }
+
 
     @GetMapping("/persons/tutor")
     public List<Person> getAllTutors(){

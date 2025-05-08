@@ -26,6 +26,7 @@ public class JwtService {
         extraClaims.put("user_id", ((PersonEntity) user).getUserId());
         extraClaims.put("user_lastname", ((PersonEntity) user).getUserLastname());
         extraClaims.put("user_role", ((PersonEntity) user).getUserRole());
+        extraClaims.put("user_state", ((PersonEntity) user).getUserState());
 
         return getToken(extraClaims, user);
     }
@@ -47,7 +48,8 @@ public class JwtService {
     }
 
     public String getUsernameFromToken(String token) {
-        return getClaim(token, Claims::getSubject);
+        Claims claims = getAllClaims(token);
+        return claims.get("user_email", String.class);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

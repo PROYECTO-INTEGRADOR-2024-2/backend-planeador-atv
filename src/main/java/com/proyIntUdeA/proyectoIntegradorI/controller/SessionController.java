@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
@@ -7,8 +8,12 @@ import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
@@ -124,6 +129,34 @@ public class SessionController {
         BeanUtils.copyProperties(session, sessionEntity);
         sessionService.updateSession(id, sessionEntity);
         return ResponseEntity.ok(sessionEntity);
+    }
+
+    @GetMapping("/personalTutos")
+    public ResponseEntity<?> getTutoringInfo(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String studentId = claims.get("user_id", String.class);
+
+        List<BasicTutoringInfoDTO> info = sessionService.getTutoringInfo(studentId);
+        return ResponseEntity.ok(info);
     }
 
 }
