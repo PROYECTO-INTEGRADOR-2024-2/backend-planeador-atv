@@ -1,6 +1,7 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
@@ -120,9 +121,9 @@ public class SessionServiceImplementation implements SessionService {
                 }).collect(Collectors.toList());
     }
 
-    // Método para traer todas las tutorías asignadas a un tutor por su ID
     @Override
     public List<Session> getTutosTutor(String id) {
+        System.out.println("El id es: " + id);
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
         return sessionEntities.stream()
@@ -365,5 +366,22 @@ public class SessionServiceImplementation implements SessionService {
                 (String) row[5]
         )).collect(Collectors.toList());
     }
+
+    @Override
+    public List<BasicTutoringInfoTutorDTO> getTutoringInfoTutor(String tutorId) {
+        List<Object[]> rawData = sessionRepository.findBasicTutoInfoTutorRaw(tutorId);
+        return rawData.stream().map(row -> new BasicTutoringInfoTutorDTO(
+                ((Number) row[0]).longValue(), // class_id
+                (Date) row[1],                 // class_date
+                (String) row[2],               // subject_name
+                (String) row[3],               // class_state
+                (String) row[4],               // student_id
+                (String) row[5],               // student_firstname
+                (String) row[6]                // student_lastname
+        )).collect(Collectors.toList());
+    }
+
+
+
 
 }
