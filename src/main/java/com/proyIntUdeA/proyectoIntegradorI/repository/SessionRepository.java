@@ -13,11 +13,23 @@ import java.util.Map;
 @Repository
 public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
 
+    //Consulta para traer la información de la tabla de tutorías que pedí como estudiante
     @Query(value = "SELECT c.class_date, s.subject_name, c.class_state, t.user_id, t.user_firstname, t.user_lastname " +
             "FROM class c " +
             "JOIN subject s ON s.subject_id = c.subject_id " +
             "JOIN person t ON t.user_id = c.tutor_id " +
             "WHERE c.student_id = :studentId", nativeQuery = true)
     List<Object[]> findBasicTutoInfoRaw(@Param("studentId") String studentId);
+
+    @Query(value = "SELECT c.class_id, c.class_date, s.subject_name, c.class_state, e.user_id, e.user_firstname, e.user_lastname " +
+            "FROM class c " +
+            "JOIN subject s ON s.subject_id = c.subject_id " +
+            "JOIN person e ON e.user_id = c.student_id " +
+            "WHERE c.tutor_id = :tutorId", nativeQuery = true)
+    List<Object[]> findBasicTutoInfoTutorRaw(@Param("tutorId") String tutorId);
+
+
+
+
 
 }
