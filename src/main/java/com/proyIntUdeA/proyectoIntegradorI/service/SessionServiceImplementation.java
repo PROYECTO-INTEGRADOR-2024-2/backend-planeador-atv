@@ -368,9 +368,9 @@ public class SessionServiceImplementation implements SessionService {
         List<Object[]> rawData = sessionRepository.findBasicTutoInfoRaw(studentId);
         return rawData.stream().map(row -> {
             canceledBy canceledByEnum = null;
-            if (row[3] != null) {
+            if (row[4] != null) {
                 try {
-                    Short canceledByValue = (Short) row[3];
+                    Short canceledByValue = (Short) row[4];
                     canceledByEnum = canceledBy.fromValue(canceledByValue);
                 } catch (Exception e) {
                 }
