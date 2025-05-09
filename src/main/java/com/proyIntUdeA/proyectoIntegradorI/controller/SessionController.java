@@ -151,7 +151,7 @@ public class SessionController {
     @PutMapping("/cancelTuto/{id}")
     public ResponseEntity<?> cancelSession(@PathVariable("id") long id, HttpServletRequest request){
 
-        Session session = sessionService.getSessionById(id);
+
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -173,6 +173,7 @@ public class SessionController {
                     .body("Invalid token");
         }
 
+        Session session = sessionService.getSessionById(id);
         String personRole = claims.get("user_role", String.class);
         String role = personRole.toLowerCase();
 
