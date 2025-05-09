@@ -1,6 +1,7 @@
 package com.proyIntUdeA.proyectoIntegradorI.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,8 @@ public class SessionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long classId;
-    private String classState;
+    private boolean registered;
+    private canceledBy canceledBy;
     private String studentId;
     private String tutorId;
     private long subjectId;
