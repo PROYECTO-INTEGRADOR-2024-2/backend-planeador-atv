@@ -54,6 +54,7 @@ public class SessionServiceImplementation implements SessionService {
                     sessionEntity.getClassId(),
                     sessionEntity.isRegistered(),
                     sessionEntity.getCanceledBy(),
+                    sessionEntity.isAccepted(),
                     studentName,
                     sessionEntity.getTutorId(),
                     sessionEntity.getSubjectId(),
@@ -90,7 +91,9 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionEntityOpt = sessionRepository.findById(id);
         if (sessionEntityOpt.isPresent()) {
             SessionEntity sessionEntity = sessionEntityOpt.get();
+            sessionEntity.setCanceledBy(session.getCanceledBy());
             sessionEntity.setRegistered(session.isRegistered());
+            sessionEntity.setAccepted(session.isAccepted());
             sessionEntity.setStudentId(session.getStudentId());
             sessionEntity.setTutorId(session.getTutorId());
             sessionEntity.setStudentId(session.getStudentId());
@@ -115,6 +118,7 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -137,6 +141,7 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -161,8 +166,9 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
-                            tutorName,
+                            sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
                             sessionEntity.getClassTopics(),
                             sessionEntity.getClassDate(),
@@ -172,14 +178,12 @@ public class SessionServiceImplementation implements SessionService {
     }
 
     @Override
-    public boolean acceptSession(AcceptSessionRequest acceptSessionRequest) {
-        long sessionId = acceptSessionRequest.getSessionId();
-        String tutorId = acceptSessionRequest.getTutorId();
+    public boolean acceptSession(Long sessionId, String tutorId) {
 
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
-            sessionEntity.setRegistered(true);
+            sessionEntity.setAccepted(true);
             sessionEntity.setTutorId(tutorId);
             updateSession(sessionId, sessionEntity);
             return true;
@@ -225,8 +229,9 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
-                            tutorName,
+                            sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
                             sessionEntity.getClassTopics(),
                             sessionEntity.getClassDate(),
@@ -252,8 +257,9 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
-                            tutorName,
+                            sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
                             sessionEntity.getClassTopics(),
                             sessionEntity.getClassDate(),
@@ -278,6 +284,7 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -304,6 +311,7 @@ public class SessionServiceImplementation implements SessionService {
                             sessionEntity.getClassId(),
                             sessionEntity.isRegistered(),
                             sessionEntity.getCanceledBy(),
+                            sessionEntity.isAccepted(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -368,9 +376,9 @@ public class SessionServiceImplementation implements SessionService {
         List<Object[]> rawData = sessionRepository.findBasicTutoInfoRaw(studentId);
         return rawData.stream().map(row -> {
             canceledBy canceledByEnum = null;
-            if (row[3] != null) {
+            if (row[4] != null) {
                 try {
-                    Short canceledByValue = (Short) row[3];
+                    Short canceledByValue = (Short) row[4];
                     canceledByEnum = canceledBy.fromValue(canceledByValue);
                 } catch (Exception e) {
                 }
@@ -382,10 +390,11 @@ public class SessionServiceImplementation implements SessionService {
                     (String) row[2],
                     (boolean) row[3],
                     canceledByEnum,
-                    (String) row[5],
+                    (boolean) row[5],
                     (String) row[6],
                     (String) row[7],
-                    (String) row[8]
+                    (String) row[8],
+                    (String) row[9]
             );
         }).collect(Collectors.toList());
     }
@@ -393,14 +402,28 @@ public class SessionServiceImplementation implements SessionService {
     @Override
     public List<BasicTutoringInfoTutorDTO> getTutoringInfoTutor(String tutorId) {
         List<Object[]> rawData = sessionRepository.findBasicTutoInfoTutorRaw(tutorId);
-        return rawData.stream().map(row -> new BasicTutoringInfoTutorDTO(
-                ((Number) row[0]).longValue(), // class_id
-                (Date) row[1],                 // class_date
-                (String) row[2],               // subject_name
-                (String) row[3],               // class_state
-                (String) row[4],               // student_id
-                (String) row[5],               // student_firstname
-                (String) row[6]                // student_lastname
-        )).collect(Collectors.toList());
+        return rawData.stream().map(row -> {
+            canceledBy canceledByEnum = null;
+            if (row[4] != null) {
+                try {
+                    Short canceledByValue = (Short) row[4];
+                    canceledByEnum = canceledBy.fromValue(canceledByValue);
+                } catch (Exception e) {
+                }
+            }
+
+            return new BasicTutoringInfoTutorDTO(
+                    (Long) row[0],
+                    (Date) row[1],
+                    (String) row[2],
+                    (boolean) row[3],
+                    canceledByEnum,
+                    (boolean) row[5],
+                    (String) row[6],
+                    (String) row[7],
+                    (String) row[8],
+                    (String) row[9]
+            );
+        }).collect(Collectors.toList());
     }
 }
