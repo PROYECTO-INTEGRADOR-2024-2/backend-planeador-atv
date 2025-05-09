@@ -8,6 +8,7 @@ import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
+import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static java.awt.SystemColor.info;
 
 @AllArgsConstructor
 @RestController
@@ -74,13 +78,9 @@ public class SessionController {
         }
     }
 
-    @GetMapping("/pool")
-    public List<Session> getPendingSessions() {
-        return sessionService.getAllPendingSessions();
-    }
 
     // Endpoint para traer las tutorías asignadas a un tutor por id
-    @GetMapping("/sessionstutor/tutosTutor")
+    @GetMapping("/sessionstutor")
     public ResponseEntity<?> getTutosTutor(HttpServletRequest request) {
 
         String authHeader = request.getHeader("Authorization");
@@ -112,13 +112,40 @@ public class SessionController {
 
     // Endpoint para traer las tutorías asignadas a un estudiante
     @GetMapping("/sessionsstudent/{id}")
-    public List<Session> getTutosStudent(@PathVariable("id") String id) {
+    public List<Session> getTutosStudent(HttpServletRequest request, @PathVariable("id") String id) {
         return sessionService.getTutosStudent(id);
     }
 
-    @PutMapping("/sessionsPoolAccept")
-    public boolean acceptSession(@RequestBody AcceptSessionRequest acceptSessionRequest) {
-        return sessionService.acceptSession(acceptSessionRequest);
+    @PutMapping("/accept/{id}")
+    public ResponseEntity<?> acceptSession(@PathVariable("id") Long id, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String tutorId = claims.get("user_id", String.class);
+        Session sesion = sessionService.getSessionById(id);
+
+
+        if(sesion.getTutorId().equals(tutorId)){
+            sessionService.acceptSession(id, tutorId);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
     }
 
     @GetMapping("/pastSessionsStudent/{id}")
@@ -143,18 +170,115 @@ public class SessionController {
 
     // Endpoint para editar tutorías
     @PutMapping("/rateClass")
-    public boolean rateClass(@RequestBody RateClassRequest rate) {
-        return sessionService.rateClass(rate.getClassId(), rate.getRate());
+    public ResponseEntity<?> rateClass(@RequestBody RateClassRequest rate, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String studentId = claims.get("user_id", String.class);
+        Session sesion = sessionService.getSessionById(rate.getClassId());
+
+        if(!studentId.equals(sesion.getStudentId())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría de otro estudiante");
+        }else if(!sesion.getCanceledBy().equals(canceledBy.NONE)){
+           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría que está cancelada");
+        }
+        sessionService.rateClass(rate.getClassId(), rate.getRate());
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
     }
 
-    @PutMapping("/cancelTuto/{id}")
-    public ResponseEntity<SessionEntity> cancelSession(@PathVariable("id") long id){
+    @PutMapping("/cancelTutoStudent/{id}")
+    public ResponseEntity<?> cancelSession(@PathVariable("id") long id, HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
         Session session = sessionService.getSessionById(id);
-        session.setClassState("cancelada");
+        String studentId = claims.get("user_id", String.class);
+        String studentIdlc = studentId.toLowerCase();
+
+        if(studentIdlc.equals(session.getStudentId())){
+            session.setCanceledBy(canceledBy.STUDENT);
+            System.out.print("Canceled by" + session.getCanceledBy());
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No puede cancelar la sesión de otro estudiante");
+        }
+
         SessionEntity sessionEntity = new SessionEntity();
         BeanUtils.copyProperties(session, sessionEntity);
         sessionService.updateSession(id, sessionEntity);
-        return ResponseEntity.ok(sessionEntity);
+        return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
+    }
+
+    @PutMapping("/cancelTutoTutor/{id}")
+    public ResponseEntity<?> cancelSessionTutor(@PathVariable("id") long id, HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        Session session = sessionService.getSessionById(id);
+        String tutorId = claims.get("user_id", String.class);
+        String tutorIdlc = tutorId.toLowerCase();
+
+        if(tutorIdlc.equals(session.getTutorId())){
+            session.setCanceledBy(canceledBy.TUTOR);
+            System.out.print("Canceled by" + session.getCanceledBy());
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No puede cancelar una sesión que no esté asignada a usted");
+        }
+
+        SessionEntity sessionEntity = new SessionEntity();
+        BeanUtils.copyProperties(session, sessionEntity);
+        sessionService.updateSession(id, sessionEntity);
+        return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
     }
 
     @GetMapping("/personalTutos")
@@ -182,6 +306,37 @@ public class SessionController {
         String studentId = claims.get("user_id", String.class);
 
         List<BasicTutoringInfoDTO> info = sessionService.getTutoringInfo(studentId);
+        return ResponseEntity.ok(info);
+    }
+    @GetMapping("/pool")
+    public ResponseEntity<?> getTutosPool(HttpServletRequest request) {
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String userRole = claims.get("user_role", String.class);
+        userRole = userRole.toLowerCase();
+        if (userRole.equals("student") ){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Los estudiantes no acceden al pool");
+        }
+        List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor("0");
         return ResponseEntity.ok(info);
     }
 
