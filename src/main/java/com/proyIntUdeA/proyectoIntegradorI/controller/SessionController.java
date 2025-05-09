@@ -173,8 +173,8 @@ public class SessionController {
 
         if(!studentId.equals(sesion.getStudentId())){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría de otro estudiante");
-        }else if(!sesion.getCanceledBy().equals("NONE")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría que está cancelada");
+        }else if(!sesion.getCanceledBy().equals(canceledBy.NONE)){
+           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría que está cancelada");
         }
         sessionService.rateClass(rate.getClassId(), rate.getRate());
         return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
