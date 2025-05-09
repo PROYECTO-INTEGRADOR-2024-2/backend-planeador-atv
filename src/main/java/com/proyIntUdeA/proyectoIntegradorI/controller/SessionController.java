@@ -8,6 +8,7 @@ import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
+import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -148,13 +149,45 @@ public class SessionController {
     }
 
     @PutMapping("/cancelTuto/{id}")
-    public ResponseEntity<SessionEntity> cancelSession(@PathVariable("id") long id){
+    public ResponseEntity<?> cancelSession(@PathVariable("id") long id, HttpServletRequest request){
+
         Session session = sessionService.getSessionById(id);
-        session.setClassState("cancelada");
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String personRole = claims.get("user_role", String.class);
+        String role = personRole.toLowerCase();
+
+        if(role.equals("student")){
+            session.setCanceledBy(canceledBy.STUDENT);
+        } else if (role.equals("tutor")) {
+            session.setCanceledBy(canceledBy.TUTOR);
+        } else if (role.equals("admin")) {
+            session.setCanceledBy(canceledBy.ADMIN);
+        }
+
         SessionEntity sessionEntity = new SessionEntity();
         BeanUtils.copyProperties(session, sessionEntity);
         sessionService.updateSession(id, sessionEntity);
-        return ResponseEntity.ok(sessionEntity);
+        return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
     }
 
     @GetMapping("/personalTutos")

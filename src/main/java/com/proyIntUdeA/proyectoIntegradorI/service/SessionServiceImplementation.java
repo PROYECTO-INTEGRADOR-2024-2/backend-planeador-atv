@@ -7,6 +7,7 @@ import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
+import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import com.proyIntUdeA.proyectoIntegradorI.repository.PersonRepository;
 import com.proyIntUdeA.proyectoIntegradorI.repository.SessionRepository;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,8 @@ public class SessionServiceImplementation implements SessionService {
             String studentName = getPersonFullName(sessionEntity.getStudentId());
             return new Session(
                     sessionEntity.getClassId(),
-                    sessionEntity.getClassState(),
+                    sessionEntity.isRegistered(),
+                    sessionEntity.getCanceledBy(),
                     studentName,
                     sessionEntity.getTutorId(),
                     sessionEntity.getSubjectId(),
@@ -88,7 +90,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionEntityOpt = sessionRepository.findById(id);
         if (sessionEntityOpt.isPresent()) {
             SessionEntity sessionEntity = sessionEntityOpt.get();
-            sessionEntity.setClassState(session.getClassState());
+            sessionEntity.setRegistered(session.isRegistered());
             sessionEntity.setStudentId(session.getStudentId());
             sessionEntity.setTutorId(session.getTutorId());
             sessionEntity.setStudentId(session.getStudentId());
@@ -106,12 +108,13 @@ public class SessionServiceImplementation implements SessionService {
         List<SessionEntity> sessionEntities = sessionRepository.findAll();
 
         return sessionEntities.stream()
-                .filter(sessionEntity -> "pendiente".equals(sessionEntity.getClassState()))
+                .filter(sessionEntity -> sessionEntity.isRegistered() == false)
                 .map(sessionEntity -> {
                     String studentName = getPersonFullName(sessionEntity.getStudentId());
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -132,7 +135,8 @@ public class SessionServiceImplementation implements SessionService {
                     String studentName = getPersonFullName(sessionEntity.getStudentId());
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -155,7 +159,8 @@ public class SessionServiceImplementation implements SessionService {
 
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             tutorName,
                             sessionEntity.getSubjectId(),
@@ -174,7 +179,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
-            sessionEntity.setClassState("aceptada");
+            sessionEntity.setRegistered(true);
             sessionEntity.setTutorId(tutorId);
             updateSession(sessionId, sessionEntity);
             return true;
@@ -195,7 +200,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
-            sessionEntity.setClassState("pendiente");
+            sessionEntity.setRegistered(false);
             sessionEntity.setTutorId("0000");
             updateSession(sessionId, sessionEntity);
             return true;
@@ -218,7 +223,8 @@ public class SessionServiceImplementation implements SessionService {
 
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             tutorName,
                             sessionEntity.getSubjectId(),
@@ -244,7 +250,8 @@ public class SessionServiceImplementation implements SessionService {
 
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             tutorName,
                             sessionEntity.getSubjectId(),
@@ -269,7 +276,8 @@ public class SessionServiceImplementation implements SessionService {
 
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -294,7 +302,8 @@ public class SessionServiceImplementation implements SessionService {
 
                     return new Session(
                             sessionEntity.getClassId(),
-                            sessionEntity.getClassState(),
+                            sessionEntity.isRegistered(),
+                            sessionEntity.getCanceledBy(),
                             studentName,
                             sessionEntity.getTutorId(),
                             sessionEntity.getSubjectId(),
@@ -322,7 +331,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(classId);
         if (sessionOpt.isPresent()) {
             SessionEntity session = sessionOpt.get();
-            session.setClassState("realizada");
+            session.setRegistered(true);
             SessionEntity saved = sessionRepository.save(session);
             return saved != null;
         }
@@ -334,7 +343,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionOpt = sessionRepository.findById(classId);
         if (sessionOpt.isPresent()) {
             SessionEntity session = sessionOpt.get();
-            session.setClassState("no realizada");
+            session.setRegistered(false);
             SessionEntity saved = sessionRepository.save(session);
             return saved != null;
         }
@@ -357,14 +366,28 @@ public class SessionServiceImplementation implements SessionService {
     @Override
     public List<BasicTutoringInfoDTO> getTutoringInfo(String studentId) {
         List<Object[]> rawData = sessionRepository.findBasicTutoInfoRaw(studentId);
-        return rawData.stream().map(row -> new BasicTutoringInfoDTO(
-                (Date) row[0],
-                (String) row[1],
-                (String) row[2],
-                (String) row[3],
-                (String) row[4],
-                (String) row[5]
-        )).collect(Collectors.toList());
+        return rawData.stream().map(row -> {
+            canceledBy canceledByEnum = null;
+            if (row[3] != null) {
+                try {
+                    Short canceledByValue = (Short) row[3];
+                    canceledByEnum = canceledBy.fromValue(canceledByValue);
+                } catch (Exception e) {
+                }
+            }
+
+            return new BasicTutoringInfoDTO(
+                    (Long) row[0],
+                    (Date) row[1],
+                    (String) row[2],
+                    (boolean) row[3],
+                    canceledByEnum,
+                    (String) row[5],
+                    (String) row[6],
+                    (String) row[7],
+                    (String) row[8]
+            );
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -380,8 +403,4 @@ public class SessionServiceImplementation implements SessionService {
                 (String) row[6]                // student_lastname
         )).collect(Collectors.toList());
     }
-
-
-
-
 }

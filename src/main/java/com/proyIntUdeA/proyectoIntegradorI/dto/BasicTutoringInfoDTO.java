@@ -1,22 +1,29 @@
 package com.proyIntUdeA.proyectoIntegradorI.dto;
 
+import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import lombok.Data;
 
 import java.util.Date;
 @Data
 public class BasicTutoringInfoDTO {
+    private Long classId;
     private Date classDate;
     private String subjectName;
-    private String classState;
+    private boolean registered;
+    private canceledBy canceledBy;
+    private String classTopics;
     private String tutorId;
     private String tutorName;
     private String tutorLastname;
 
-    public BasicTutoringInfoDTO(Date classDate, String subjectName, String classState,
-                                String tutorId, String tutorName, String tutorLastname) {
+
+    public BasicTutoringInfoDTO(Long classId, Date classDate, String subjectName, boolean registered, canceledBy canceledBy, String classTopics, String tutorId, String tutorName, String tutorLastname) {
+        this.classId = classId;
         this.classDate = classDate;
         this.subjectName = subjectName;
-        this.classState = classState;
+        this.registered = registered;
+        this.canceledBy = canceledBy;
+        this.classTopics = classTopics;
         this.tutorId = tutorId;
         this.tutorName = tutorName;
         this.tutorLastname = tutorLastname;
