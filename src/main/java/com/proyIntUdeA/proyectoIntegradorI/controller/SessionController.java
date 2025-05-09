@@ -84,7 +84,7 @@ public class SessionController {
     }
 
     // Endpoint para traer las tutorías asignadas a un tutor por id
-    @GetMapping("/sessionstutor/tutosTutor")
+    @GetMapping("/sessionstutor")
     public ResponseEntity<?> getTutosTutor(HttpServletRequest request) {
 
         String authHeader = request.getHeader("Authorization");
@@ -180,7 +180,7 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
     }
 
-    @PutMapping("/cancelTuto/{id}")
+    @PutMapping("/cancelTutoStudent/{id}")
     public ResponseEntity<?> cancelSession(@PathVariable("id") long id, HttpServletRequest request){
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -203,16 +203,53 @@ public class SessionController {
         }
 
         Session session = sessionService.getSessionById(id);
-        String personRole = claims.get("user_role", String.class);
-        String role = personRole.toLowerCase();
+        String studentId = claims.get("user_id", String.class);
+        String studentIdlc = studentId.toLowerCase();
 
-        if(role.equals("student")){
+        if(studentIdlc.equals(session.getStudentId())){
             session.setCanceledBy(canceledBy.STUDENT);
             System.out.print("Canceled by" + session.getCanceledBy());
-        } else if (role.equals("tutor")) {
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No puede cancelar la sesión de otro estudiante");
+        }
+
+        SessionEntity sessionEntity = new SessionEntity();
+        BeanUtils.copyProperties(session, sessionEntity);
+        sessionService.updateSession(id, sessionEntity);
+        return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
+    }
+
+    @PutMapping("/cancelTutoTutor/{id}")
+    public ResponseEntity<?> cancelSessionTutor(@PathVariable("id") long id, HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        Session session = sessionService.getSessionById(id);
+        String tutorId = claims.get("user_id", String.class);
+        String tutorIdlc = tutorId.toLowerCase();
+
+        if(tutorIdlc.equals(session.getTutorId())){
             session.setCanceledBy(canceledBy.TUTOR);
-        } else if (role.equals("admin")) {
-            session.setCanceledBy(canceledBy.ADMIN);
+            System.out.print("Canceled by" + session.getCanceledBy());
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No puede cancelar una sesión que no esté asignada a usted");
         }
 
         SessionEntity sessionEntity = new SessionEntity();
