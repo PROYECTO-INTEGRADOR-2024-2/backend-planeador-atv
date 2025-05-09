@@ -13,11 +13,12 @@ public class BasicTutoringInfoDTO {
     private canceledBy canceledBy;
     private boolean accepted;
     private String classTopics;
+    private float classRate;
     private String tutorId;
     private String tutorName;
     private String tutorLastname;
 
-    public BasicTutoringInfoDTO(Long classId, Date classDate, String subjectName, boolean registered, canceledBy canceledBy, boolean accepted, String classTopics, String tutorId, String tutorName, String tutorLastname) {
+    public BasicTutoringInfoDTO(Long classId, Date classDate, String subjectName, boolean registered, canceledBy canceledBy, boolean accepted, String classTopics, float classRate, String tutorId, String tutorName, String tutorLastname) {
         this.classId = classId;
         this.classDate = classDate;
         this.subjectName = subjectName;
@@ -25,6 +26,7 @@ public class BasicTutoringInfoDTO {
         this.canceledBy = canceledBy;
         this.accepted = accepted;
         this.classTopics = classTopics;
+        this.classRate = classRate;
         this.tutorId = tutorId;
         this.tutorName = tutorName;
         this.tutorLastname = tutorLastname;

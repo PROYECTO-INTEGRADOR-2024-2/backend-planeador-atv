@@ -392,9 +392,10 @@ public class SessionServiceImplementation implements SessionService {
                     canceledByEnum,
                     (boolean) row[5],
                     (String) row[6],
-                    (String) row[7],
+                    (float) row[7],
                     (String) row[8],
-                    (String) row[9]
+                    (String) row[9],
+                    (String) row[10]
             );
         }).collect(Collectors.toList());
     }
@@ -420,9 +421,10 @@ public class SessionServiceImplementation implements SessionService {
                     canceledByEnum,
                     (boolean) row[5],
                     (String) row[6],
-                    (String) row[7],
+                    (float) row[7],
                     (String) row[8],
-                    (String) row[9]
+                    (String) row[9],
+                    (String) row[10]
             );
         }).collect(Collectors.toList());
     }
