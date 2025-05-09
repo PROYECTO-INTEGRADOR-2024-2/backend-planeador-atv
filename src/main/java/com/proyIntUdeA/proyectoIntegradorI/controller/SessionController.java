@@ -116,13 +116,40 @@ public class SessionController {
 
     // Endpoint para traer las tutorías asignadas a un estudiante
     @GetMapping("/sessionsstudent/{id}")
-    public List<Session> getTutosStudent(@PathVariable("id") String id) {
+    public List<Session> getTutosStudent(HttpServletRequest request, @PathVariable("id") String id) {
         return sessionService.getTutosStudent(id);
     }
 
-    @PutMapping("/sessionsPoolAccept")
-    public boolean acceptSession(@RequestBody AcceptSessionRequest acceptSessionRequest) {
-        return sessionService.acceptSession(acceptSessionRequest);
+    @PutMapping("/accept/{id}")
+    public ResponseEntity<?> acceptSession(@PathVariable("id") Long id, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String tutorId = claims.get("user_id", String.class);
+        Session sesion = sessionService.getSessionById(id);
+
+
+        if(sesion.getTutorId().equals(tutorId)){
+            sessionService.acceptSession(id, tutorId);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
     }
 
     @GetMapping("/pastSessionsStudent/{id}")

@@ -15,6 +15,7 @@ public class Session {
     private long classId;
     private boolean registered;
     private canceledBy canceledBy;
+    private boolean accepted;
     private String studentId;
     private String tutorId;
     private long subjectId;
