@@ -90,6 +90,7 @@ public class SessionServiceImplementation implements SessionService {
         Optional<SessionEntity> sessionEntityOpt = sessionRepository.findById(id);
         if (sessionEntityOpt.isPresent()) {
             SessionEntity sessionEntity = sessionEntityOpt.get();
+            sessionEntity.setCanceledBy(session.getCanceledBy());
             sessionEntity.setRegistered(session.isRegistered());
             sessionEntity.setStudentId(session.getStudentId());
             sessionEntity.setTutorId(session.getTutorId());

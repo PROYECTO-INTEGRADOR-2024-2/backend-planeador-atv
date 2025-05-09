@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static java.awt.SystemColor.info;
 
 @AllArgsConstructor
 @RestController
@@ -144,15 +147,41 @@ public class SessionController {
 
     // Endpoint para editar tutorías
     @PutMapping("/rateClass")
-    public boolean rateClass(@RequestBody RateClassRequest rate) {
-        return sessionService.rateClass(rate.getClassId(), rate.getRate());
+    public ResponseEntity<?> rateClass(@RequestBody RateClassRequest rate, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String studentId = claims.get("user_id", String.class);
+        Session sesion = sessionService.getSessionById(rate.getClassId());
+
+        if(!studentId.equals(sesion.getStudentId())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría de otro estudiante");
+        }else if(!sesion.getCanceledBy().equals("NONE")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría que está cancelada");
+        }
+        sessionService.rateClass(rate.getClassId(), rate.getRate());
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
     }
 
     @PutMapping("/cancelTuto/{id}")
     public ResponseEntity<?> cancelSession(@PathVariable("id") long id, HttpServletRequest request){
-
-
-
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity
@@ -179,6 +208,7 @@ public class SessionController {
 
         if(role.equals("student")){
             session.setCanceledBy(canceledBy.STUDENT);
+            System.out.print("Canceled by" + session.getCanceledBy());
         } else if (role.equals("tutor")) {
             session.setCanceledBy(canceledBy.TUTOR);
         } else if (role.equals("admin")) {
