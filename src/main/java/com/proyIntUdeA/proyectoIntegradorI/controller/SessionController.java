@@ -10,6 +10,7 @@ import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
+import jdk.javadoc.doclet.Reporter;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -124,13 +125,14 @@ public class SessionController {
         }
 
         String tutorId = claims.get("user_id", String.class);
-        Session sesion = sessionService.getSessionById(id);
+        String userRole= claims.get("user_role", String.class);
+        userRole = userRole.toLowerCase();
 
-
-        if(sesion.getTutorId().equals(tutorId)){
-            sessionService.acceptSession(id, tutorId);
+        if(!userRole.equals("tutor")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No es un tutor el que quiere aceptar la tutoría");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
+        sessionService.acceptSession(id, tutorId);
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría aceptada correctamente");
     }
 
     @GetMapping("/pastSessionsStudent/{id}")
