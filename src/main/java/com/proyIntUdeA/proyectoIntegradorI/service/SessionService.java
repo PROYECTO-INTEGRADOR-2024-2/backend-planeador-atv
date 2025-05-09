@@ -19,7 +19,7 @@ public interface SessionService {
     List<Session> getTutosTutor(String id);
     List<Session> getTutosStudent(String id);
     boolean acceptSession(Long sessionId, String tutorId);
-    boolean rejectSession(RejectSessionRequest rejectSessionRequest);
+    boolean rejectSession(Long sessionId, String userId);
     List<Session> getAllPastSessionsStudent(String id);
     List<Session> getAllPendingSessionsStudent(String id);
     List<Session> getAllPastSessionsTutor(String id);

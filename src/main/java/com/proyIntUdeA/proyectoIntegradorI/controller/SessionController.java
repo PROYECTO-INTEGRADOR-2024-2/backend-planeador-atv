@@ -2,11 +2,8 @@ package com.proyIntUdeA.proyectoIntegradorI.controller;
 
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
-import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
-import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
-import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
@@ -66,18 +63,6 @@ public class SessionController {
         session = sessionService.updateSession(id, session);
         return ResponseEntity.ok(session);
     }
-
-    @PutMapping("/rejectSession")
-    public ResponseEntity<SessionEntity> rejectSession(@RequestBody RejectSessionRequest request) {
-        boolean status = sessionService.rejectSession(request);
-        if (status) {
-            return ResponseEntity.ok(new SessionEntity());
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
 
     // Endpoint para traer las tutorías asignadas a un tutor por id
     @GetMapping("/sessionstutor")
@@ -201,6 +186,45 @@ public class SessionController {
         }
         sessionService.rateClass(rate.getClassId(), rate.getRate());
         return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
+    }
+
+    // Endpoint para editar tutorías
+    @PutMapping("/rejectClass/{id}")
+    public ResponseEntity<?> rejectClass(@PathVariable("id") Long id, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+
+        String tutorId = claims.get("user_id", String.class);
+        Session sesion = sessionService.getSessionById(id);
+        System.out.print("id que se está enviando en el token: " + tutorId);
+        System.out.print("id que se está enviando en la sesión: " + sesion.getTutorId());
+        if(!tutorId.equals(sesion.getTutorId())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede rechazar la tutoría de otro tutor");
+        }else if(!sesion.getCanceledBy().equals(canceledBy.NONE)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede rechazar una tutoría que está cancelada");
+        } else if(sesion.isAccepted()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede rechazar una tutoría que está aceptada");
+        }
+        sessionService.rejectSession(id, tutorId);
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría rechazada correctamente");
     }
 
     @PutMapping("/cancelTutoStudent/{id}")

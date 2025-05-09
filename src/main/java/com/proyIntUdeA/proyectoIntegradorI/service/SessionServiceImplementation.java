@@ -192,9 +192,9 @@ public class SessionServiceImplementation implements SessionService {
     }
 
     @Override
-    public boolean rejectSession(RejectSessionRequest rejectSessionRequest) {
-        long sessionId = rejectSessionRequest.getSessionId();
-        String tutorId = rejectSessionRequest.getTutorId();
+    public boolean rejectSession(Long id, String userId) {
+        long sessionId = id;
+        String tutorId = userId;
 
         Optional<PersonEntity> personOpt = personRepository.findById(tutorId);
         if (personOpt.isEmpty()) {
@@ -205,7 +205,7 @@ public class SessionServiceImplementation implements SessionService {
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
             sessionEntity.setRegistered(false);
-            sessionEntity.setTutorId("0000");
+            sessionEntity.setTutorId("0");
             updateSession(sessionId, sessionEntity);
             return true;
         }
