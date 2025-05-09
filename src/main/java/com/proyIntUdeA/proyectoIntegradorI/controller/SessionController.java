@@ -78,10 +78,6 @@ public class SessionController {
         }
     }
 
-    @GetMapping("/pool")
-    public List<Session> getPendingSessions() {
-        return sessionService.getAllPendingSessions();
-    }
 
     // Endpoint para traer las tutorías asignadas a un tutor por id
     @GetMapping("/sessionstutor")
@@ -310,6 +306,37 @@ public class SessionController {
         String studentId = claims.get("user_id", String.class);
 
         List<BasicTutoringInfoDTO> info = sessionService.getTutoringInfo(studentId);
+        return ResponseEntity.ok(info);
+    }
+    @GetMapping("/pool")
+    public ResponseEntity<?> getTutosPool(HttpServletRequest request) {
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Token missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid token");
+        }
+
+        String userRole = claims.get("user_role", String.class);
+        userRole = userRole.toLowerCase();
+        if (userRole.equals("student") ){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Los estudiantes no acceden al pool");
+        }
+        List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor("0");
         return ResponseEntity.ok(info);
     }
 
