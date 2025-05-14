@@ -252,6 +252,25 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
     }
 
+    @PutMapping("/cancelTutoAdmin/{id}")
+    public ResponseEntity<?> cancelSessionAdmin(@PathVariable("id") long id, HttpServletRequest request){
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        Session session = sessionService.getSessionById(id);
+
+        session.setCanceledBy(canceledBy.ADMIN);
+        System.out.print("Canceled by" + session.getCanceledBy());
+        SessionEntity sessionEntity = new SessionEntity();
+        BeanUtils.copyProperties(session, sessionEntity);
+        sessionService.updateSession(id, sessionEntity);
+        return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
+    }
+
     @GetMapping("/personalTutos")
     public ResponseEntity<?> getTutoringInfo(HttpServletRequest request) {
         ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
