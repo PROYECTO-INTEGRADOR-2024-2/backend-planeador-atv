@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
@@ -428,4 +429,37 @@ public class SessionServiceImplementation implements SessionService {
             );
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public List<BasicTutoringInfoAdminDTO> getTutoringInfoAdmin() {
+        List<Object[]> rawData = sessionRepository.findBasicTutoInfoAdminRaw();
+        return rawData.stream().map(row -> {
+            canceledBy canceledByEnum = null;
+            if (row[4] != null) {
+                try {
+                    Short canceledByValue = ((Number) row[4]).shortValue();
+                    canceledByEnum = canceledBy.fromValue(canceledByValue);
+                } catch (Exception e) {
+                }
+            }
+
+            return new BasicTutoringInfoAdminDTO(
+                    (Long) row[0],             // class_id
+                    (Date) row[1],             // class_date
+                    (String) row[2],           // subject_name
+                    (Boolean) row[3],          // registered
+                    canceledByEnum,            // canceled_by
+                    (Boolean) row[5],          // accepted
+                    (String) row[6],           // class_topics
+                    (float) row[7], // class_rate
+                    (String) row[8],  // student_id
+                    (String) row[9],           // student_firstname
+                    (String) row[10],          // student_lastname
+                    (String) row[11], // tutor_id
+                    (String) row[12],          // tutor_firstname
+                    (String) row[13]           // tutor_lastname
+            );
+        }).collect(Collectors.toList());
+    }
+
 }

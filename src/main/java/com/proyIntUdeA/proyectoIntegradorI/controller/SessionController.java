@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
@@ -36,6 +37,7 @@ public class SessionController {
         return sessionService.getAllSessions();
     }
 
+
     @GetMapping("/tutos")
     public List<Session> getTutos(){
         return sessionService.getTutos();
@@ -61,6 +63,27 @@ public class SessionController {
     public ResponseEntity<SessionEntity> updateSession(@PathVariable("id") long id, @RequestBody SessionEntity session) {
         session = sessionService.updateSession(id, session);
         return ResponseEntity.ok(session);
+    }
+
+    @GetMapping("/tutosNew")
+    public ResponseEntity<?> getTutosNew(HttpServletRequest request){
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        String user_role = jwtService.getClaim(token, claims -> claims.get("user_role", String.class)).toLowerCase();
+
+        if(!user_role.equals("admin")){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Debes ser usuario administrador");
+        }
+
+        List<BasicTutoringInfoAdminDTO> info = sessionService.getTutoringInfoAdmin();
+        return ResponseEntity.ok(info);
     }
 
     @GetMapping("/sessionstutor")
@@ -263,4 +286,5 @@ public class SessionController {
         List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor("0");
         return ResponseEntity.ok(info);
     }
+
 }
