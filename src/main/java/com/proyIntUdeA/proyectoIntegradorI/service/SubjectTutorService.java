@@ -1,11 +1,12 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.TutorAvailabilityRequestDTO;
+import com.proyIntUdeA.proyectoIntegradorI.entity.SlotAvailabilityEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.UserXSubjectEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface SubjectTutorService {
@@ -15,4 +16,9 @@ public interface SubjectTutorService {
     boolean deleteSubjectTutorById(Long id);
     List<UserXSubject> saveSubjectTutorList(String user_id, List<Long> subjectIds);
     UserXSubjectEntity getUserXSubjectOrThrow(String user_id, Long subject_id);
+
+    List<SlotAvailabilityEntity> saveTutorAvailability(TutorAvailabilityRequestDTO request);
+
+    List<SlotAvailabilityEntity> getTutorAvailability(String tutorId);
+
 }

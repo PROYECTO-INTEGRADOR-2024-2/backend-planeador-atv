@@ -1,8 +1,11 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.TutorAvailabilityRequestDTO;
+import com.proyIntUdeA.proyectoIntegradorI.entity.SlotAvailabilityEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.UserXSubjectEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
 import com.proyIntUdeA.proyectoIntegradorI.repository.SubjectTutorRepository;
+import com.proyIntUdeA.proyectoIntegradorI.repository.TutorAvailabilityRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -15,9 +18,11 @@ import java.util.stream.Collectors;
 public class SubjectTutorServiceImplementation implements SubjectTutorService {
 
     private final SubjectTutorRepository subjectTutorRepository;
+    private final TutorAvailabilityRepository availabilityRepository;
 
-    public SubjectTutorServiceImplementation(SubjectTutorRepository subjectTutorRepository) {
+    public SubjectTutorServiceImplementation(SubjectTutorRepository subjectTutorRepository, TutorAvailabilityRepository availabilityRepository) {
         this.subjectTutorRepository = subjectTutorRepository;
+        this.availabilityRepository = availabilityRepository;
     }
 
     @Override
@@ -71,5 +76,25 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
     @Override
     public boolean deleteSubjectTutorById(Long id) {
         return false;
+    }
+
+    @Override
+    public List<SlotAvailabilityEntity> saveTutorAvailability(TutorAvailabilityRequestDTO request){
+        List<SlotAvailabilityEntity> availabilities = request.getDisponibilidad().stream()
+                .map(av -> new SlotAvailabilityEntity(
+                        null,
+                        request.getTutorId(),
+                        av.getDia(),
+                        av.getHoraInicio(),
+                        av.getHoraFinal(),
+                        av.getPeriodo()
+                ))
+                .collect(Collectors.toList());
+        return availabilityRepository.saveAll(availabilities);
+    }
+
+    @Override
+    public List<SlotAvailabilityEntity> getTutorAvailability(String tutorId) {
+        return availabilityRepository.findByTutorId(tutorId);
     }
 }
