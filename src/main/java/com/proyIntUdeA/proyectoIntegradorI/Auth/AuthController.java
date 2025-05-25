@@ -29,7 +29,16 @@ public class AuthController {
     private final PersonService personService;
     private final JwtService jwtService;
     @PostMapping(value = "login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        String email = request.getUser_email();
+
+        Optional<PersonEntity> user = personRepository.findByUserEmail(email);
+
+        if (!user.isPresent()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("El usuario no está registrado");
+        } else if(user.get().getUserState().equals("0")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("El usuario se encuentra deshabilitado");
+        }
         return ResponseEntity.ok(authService.login(request));
     }
 

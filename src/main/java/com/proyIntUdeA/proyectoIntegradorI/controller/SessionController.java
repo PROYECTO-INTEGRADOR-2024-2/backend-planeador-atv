@@ -1,17 +1,13 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
-import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
-import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RateClassRequest;
-import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -21,15 +17,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import static java.awt.SystemColor.info;
+import com.proyIntUdeA.proyectoIntegradorI.Jwt.JwtService;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/v1/session")
 public class SessionController {
+
     private SessionService sessionService;
+    private JwtService jwtService;
+
     @PostMapping("/")
     public Session saveSession(@RequestBody Session session) {
         return sessionService.saveSession(session);
@@ -39,6 +36,7 @@ public class SessionController {
     public List<Session> getAllSessions() {
         return sessionService.getAllSessions();
     }
+
 
     @GetMapping("/tutos")
     public List<Session> getTutos(){
@@ -67,50 +65,43 @@ public class SessionController {
         return ResponseEntity.ok(session);
     }
 
-    @PutMapping("/rejectSession")
-    public ResponseEntity<SessionEntity> rejectSession(@RequestBody RejectSessionRequest request) {
-        boolean status = sessionService.rejectSession(request);
-        if (status) {
-            return ResponseEntity.ok(new SessionEntity());
+    @GetMapping("/tutosNew")
+    public ResponseEntity<?> getTutosNew(HttpServletRequest request){
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
-        else {
-            return ResponseEntity.notFound().build();
+
+        String token = request.getHeader("Authorization").substring(7);
+        String user_role = jwtService.getClaim(token, claims -> claims.get("user_role", String.class)).toLowerCase();
+
+        if(!user_role.equals("admin")){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Debes ser usuario administrador");
         }
+
+        List<BasicTutoringInfoAdminDTO> info = sessionService.getTutoringInfoAdmin();
+        return ResponseEntity.ok(info);
     }
 
-
-    // Endpoint para traer las tutorías asignadas a un tutor por id
     @GetMapping("/sessionstutor")
     public ResponseEntity<?> getTutosTutor(HttpServletRequest request) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
-
-        String tutorId = claims.get("user_id", String.class);
+        String token = request.getHeader("Authorization").substring(7);
+        String tutorId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
 
         List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor(tutorId);
         System.out.println("Buscando tutorías que estén asignadas al id " + tutorId);
         return ResponseEntity.ok(info);
     }
 
-    // Endpoint para traer las tutorías asignadas a un estudiante
     @GetMapping("/sessionsstudent/{id}")
     public List<Session> getTutosStudent(HttpServletRequest request, @PathVariable("id") String id) {
         return sessionService.getTutosStudent(id);
@@ -118,34 +109,30 @@ public class SessionController {
 
     @PutMapping("/accept/{id}")
     public ResponseEntity<?> acceptSession(@PathVariable("id") Long id, HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+
+        String tutorId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
+        String userRole = jwtService.getClaim(token, claims ->
+                claims.get("user_role", String.class).toLowerCase()
+        );
+
+        if (!userRole.equals("tutor")) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+                    .body("No es un tutor el que quiere aceptar la tutoría");
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
+        sessionService.acceptSession(id, tutorId);
 
-        String tutorId = claims.get("user_id", String.class);
-        Session sesion = sessionService.getSessionById(id);
-
-
-        if(sesion.getTutorId().equals(tutorId)){
-            sessionService.acceptSession(id, tutorId);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Tutoría aceptada correctamente");
     }
 
     @GetMapping("/pastSessionsStudent/{id}")
@@ -168,65 +155,62 @@ public class SessionController {
         return sessionService.getAllPendingSessionsTutor(id);
     }
 
-    // Endpoint para editar tutorías
     @PutMapping("/rateClass")
     public ResponseEntity<?> rateClass(@RequestBody RateClassRequest rate, HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
-
-        String studentId = claims.get("user_id", String.class);
+        String token = request.getHeader("Authorization").substring(7);
+        String studentId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
         Session sesion = sessionService.getSessionById(rate.getClassId());
 
         if(!studentId.equals(sesion.getStudentId())){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría de otro estudiante");
         }else if(!sesion.getCanceledBy().equals(canceledBy.NONE)){
-           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría que está cancelada");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede valorar una tutoría que está cancelada");
         }
         sessionService.rateClass(rate.getClassId(), rate.getRate());
         return ResponseEntity.status(HttpStatus.OK).body("Tutoría valorada correctamente");
     }
 
+    @PutMapping("/rejectClass/{id}")
+    public ResponseEntity<?> rejectClass(@PathVariable("id") Long id, HttpServletRequest request) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        String tutorId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
+        Session sesion = sessionService.getSessionById(id);
+        System.out.print("id que se está enviando en el token: " + tutorId);
+        System.out.print("id que se está enviando en la sesión: " + sesion.getTutorId());
+        if(!tutorId.equals(sesion.getTutorId())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede rechazar la tutoría de otro tutor");
+        }else if(!sesion.getCanceledBy().equals(canceledBy.NONE)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede rechazar una tutoría que está cancelada");
+        } else if(sesion.isAccepted()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede rechazar una tutoría que está aceptada");
+        }
+        sessionService.rejectSession(id, tutorId);
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría rechazada correctamente");
+    }
+
     @PutMapping("/cancelTutoStudent/{id}")
     public ResponseEntity<?> cancelSession(@PathVariable("id") long id, HttpServletRequest request){
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
-
+        String token = request.getHeader("Authorization").substring(7);
         Session session = sessionService.getSessionById(id);
-        String studentId = claims.get("user_id", String.class);
+        String studentId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
         String studentIdlc = studentId.toLowerCase();
 
         if(studentIdlc.equals(session.getStudentId())){
@@ -244,28 +228,15 @@ public class SessionController {
 
     @PutMapping("/cancelTutoTutor/{id}")
     public ResponseEntity<?> cancelSessionTutor(@PathVariable("id") long id, HttpServletRequest request){
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
-
+        String token = request.getHeader("Authorization").substring(7);
         Session session = sessionService.getSessionById(id);
-        String tutorId = claims.get("user_id", String.class);
+        String tutorId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
         String tutorIdlc = tutorId.toLowerCase();
 
         if(tutorIdlc.equals(session.getTutorId())){
@@ -281,59 +252,54 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
     }
 
+    @PutMapping("/cancelTutoAdmin/{id}")
+    public ResponseEntity<?> cancelSessionAdmin(@PathVariable("id") long id, HttpServletRequest request){
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        Session session = sessionService.getSessionById(id);
+
+        session.setCanceledBy(canceledBy.ADMIN);
+        System.out.print("Canceled by" + session.getCanceledBy());
+        SessionEntity sessionEntity = new SessionEntity();
+        BeanUtils.copyProperties(session, sessionEntity);
+        sessionService.updateSession(id, sessionEntity);
+        return ResponseEntity.status(HttpStatus.OK).body("La tutoría ha sido cancelada correctamente");
+    }
+
     @GetMapping("/personalTutos")
     public ResponseEntity<?> getTutoringInfo(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
-
-        String studentId = claims.get("user_id", String.class);
+        String token = request.getHeader("Authorization").substring(7);
+        String studentId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
 
         List<BasicTutoringInfoDTO> info = sessionService.getTutoringInfo(studentId);
         return ResponseEntity.ok(info);
     }
+
     @GetMapping("/pool")
     public ResponseEntity<?> getTutosPool(HttpServletRequest request) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
 
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Token missing or invalid");
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
         }
 
-        String token = authHeader.substring(7);
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey("586E3272357538782F413F4428472B4B6250655368566B597033733676397924")
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid token");
-        }
+        String token = request.getHeader("Authorization").substring(7);
+        String userRole = jwtService.getClaim(token, claims ->
+                claims.get("user_role", String.class).toLowerCase()
+        );
 
-        String userRole = claims.get("user_role", String.class);
-        userRole = userRole.toLowerCase();
-        if (userRole.equals("student") ){
+        if (userRole.equals("student")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Los estudiantes no acceden al pool");
         }
         List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor("0");

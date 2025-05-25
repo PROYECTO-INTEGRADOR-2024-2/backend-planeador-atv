@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
@@ -192,9 +193,9 @@ public class SessionServiceImplementation implements SessionService {
     }
 
     @Override
-    public boolean rejectSession(RejectSessionRequest rejectSessionRequest) {
-        long sessionId = rejectSessionRequest.getSessionId();
-        String tutorId = rejectSessionRequest.getTutorId();
+    public boolean rejectSession(Long id, String userId) {
+        long sessionId = id;
+        String tutorId = userId;
 
         Optional<PersonEntity> personOpt = personRepository.findById(tutorId);
         if (personOpt.isEmpty()) {
@@ -205,7 +206,7 @@ public class SessionServiceImplementation implements SessionService {
         if (sessionOpt.isPresent()) {
             SessionEntity sessionEntity = sessionOpt.get();
             sessionEntity.setRegistered(false);
-            sessionEntity.setTutorId("0000");
+            sessionEntity.setTutorId("0");
             updateSession(sessionId, sessionEntity);
             return true;
         }
@@ -392,9 +393,10 @@ public class SessionServiceImplementation implements SessionService {
                     canceledByEnum,
                     (boolean) row[5],
                     (String) row[6],
-                    (String) row[7],
+                    (float) row[7],
                     (String) row[8],
-                    (String) row[9]
+                    (String) row[9],
+                    (String) row[10]
             );
         }).collect(Collectors.toList());
     }
@@ -420,10 +422,44 @@ public class SessionServiceImplementation implements SessionService {
                     canceledByEnum,
                     (boolean) row[5],
                     (String) row[6],
-                    (String) row[7],
+                    (float) row[7],
                     (String) row[8],
-                    (String) row[9]
+                    (String) row[9],
+                    (String) row[10]
             );
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public List<BasicTutoringInfoAdminDTO> getTutoringInfoAdmin() {
+        List<Object[]> rawData = sessionRepository.findBasicTutoInfoAdminRaw();
+        return rawData.stream().map(row -> {
+            canceledBy canceledByEnum = null;
+            if (row[4] != null) {
+                try {
+                    Short canceledByValue = ((Number) row[4]).shortValue();
+                    canceledByEnum = canceledBy.fromValue(canceledByValue);
+                } catch (Exception e) {
+                }
+            }
+
+            return new BasicTutoringInfoAdminDTO(
+                    (Long) row[0],             // class_id
+                    (Date) row[1],             // class_date
+                    (String) row[2],           // subject_name
+                    (Boolean) row[3],          // registered
+                    canceledByEnum,            // canceled_by
+                    (Boolean) row[5],          // accepted
+                    (String) row[6],           // class_topics
+                    (float) row[7], // class_rate
+                    (String) row[8],  // student_id
+                    (String) row[9],           // student_firstname
+                    (String) row[10],          // student_lastname
+                    (String) row[11], // tutor_id
+                    (String) row[12],          // tutor_firstname
+                    (String) row[13]           // tutor_lastname
+            );
+        }).collect(Collectors.toList());
+    }
+
 }
