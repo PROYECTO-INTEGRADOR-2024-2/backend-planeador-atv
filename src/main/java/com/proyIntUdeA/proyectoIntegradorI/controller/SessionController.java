@@ -306,4 +306,27 @@ public class SessionController {
         return ResponseEntity.ok(info);
     }
 
+    @PutMapping("/registerClass/{id}")
+    public ResponseEntity<?> registerClass(@PathVariable("id") Long id, HttpServletRequest request) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        String tutorId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
+        Session sesion = sessionService.getSessionById(id);
+
+        if(!tutorId.equals(sesion.getTutorId())){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede registrar la tutoría de otro tutor");
+        }else if(!sesion.getCanceledBy().equals(canceledBy.NONE)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede registrar una tutoría que está cancelada");
+        } else if(!sesion.isAccepted()){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se puede registrar una tutoría que no esté aceptada");
+        }
+        sessionService.registerClass(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Tutoría registrada correctamente");
+    }
+
 }
