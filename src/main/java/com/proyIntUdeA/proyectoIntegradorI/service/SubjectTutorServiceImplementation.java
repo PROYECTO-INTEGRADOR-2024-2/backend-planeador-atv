@@ -80,6 +80,7 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
 
     @Override
     public List<SlotAvailabilityEntity> saveTutorAvailability(TutorAvailabilityRequestDTO request){
+        subjectTutorRepository.eliminarBloquesXTutorId(request.getTutorId());
         List<SlotAvailabilityEntity> availabilities = request.getDisponibilidad().stream()
                 .map(av -> new SlotAvailabilityEntity(
                         null,
