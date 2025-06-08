@@ -7,6 +7,8 @@ import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
+
+import java.util.Date;
 import java.util.List;
 
 public interface SessionService {
@@ -38,4 +40,6 @@ public interface SessionService {
 
     // Encuentro no realizado
     boolean noClass(Long classId);
+
+    String formatearfecha(Date fecha);
 }

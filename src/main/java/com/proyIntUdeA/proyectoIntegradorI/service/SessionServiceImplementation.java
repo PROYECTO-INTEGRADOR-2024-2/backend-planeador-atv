@@ -15,10 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -461,5 +458,14 @@ public class SessionServiceImplementation implements SessionService {
             );
         }).collect(Collectors.toList());
     }
+    @Override
+    public String formatearfecha(Date fecha){
+        ZonedDateTime date = fecha.toInstant().atZone(ZoneId.of("UTC"));
+        System.out.println("Fecha traida del Back en formato instant " + date);
+        ZonedDateTime colombiaDateTime = date.withZoneSameInstant(ZoneId.of("America/Bogota"));
+        System.out.println("Fecha traida del Back en formato colombiano " + colombiaDateTime);
+        return colombiaDateTime.toString().substring(0, 16);
+    }
+
 
 }
