@@ -42,4 +42,6 @@ public interface SessionService {
     boolean noClass(Long classId);
 
     String formatearfecha(Date fecha);
+
+    boolean verificarDispoTutor(String tutorId);
 }

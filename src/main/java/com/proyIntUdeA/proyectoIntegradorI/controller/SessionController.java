@@ -333,4 +333,9 @@ public class SessionController {
         return ResponseEntity.status(HttpStatus.OK).body("Tutoría registrada correctamente");
     }
 
+    @GetMapping("/verificar")
+    public ResponseEntity<?> prueba(){
+        sessionService.verificarDispoTutor("1111111111");
+        return ResponseEntity.ok("ok");
+    }
 }

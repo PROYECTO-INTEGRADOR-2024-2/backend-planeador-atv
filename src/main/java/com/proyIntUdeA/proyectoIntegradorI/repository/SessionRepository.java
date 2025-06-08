@@ -34,6 +34,7 @@ public interface SessionRepository extends JpaRepository<SessionEntity, Long> {
             "JOIN person t ON t.user_id = c.tutor_id", nativeQuery = true)
     List<Object[]> findBasicTutoInfoAdminRaw();
 
-
+    @Query(value = "SELECT c.class_date from class c where c.tutor_id = :tutorId", nativeQuery = true)
+    List<Object[]> findDates(@Param("tutorId") String tutorId);
 
 }

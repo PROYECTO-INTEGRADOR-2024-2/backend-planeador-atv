@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
@@ -16,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -465,6 +467,21 @@ public class SessionServiceImplementation implements SessionService {
         ZonedDateTime colombiaDateTime = date.withZoneSameInstant(ZoneId.of("America/Bogota"));
         System.out.println("Fecha traida del Back en formato colombiano " + colombiaDateTime);
         return colombiaDateTime.toString().substring(0, 16);
+    }
+
+    //Devuelve true si hay algún error
+    @Override
+    public boolean verificarDispoTutor(String tutorId){
+        List<Object[]> fechas = sessionRepository.findDates(tutorId);
+        List<String> fechasForm = new ArrayList<>();
+
+        for(Object[] fecha : fechas){
+            fechasForm.add(formatearfecha((Date) fecha[0]));
+        }
+
+        fechasForm.forEach(fecha -> System.out.printf("fecha: "+fecha));
+
+        return true;
     }
 
 
