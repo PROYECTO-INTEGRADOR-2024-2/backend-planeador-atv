@@ -1,6 +1,7 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
 import com.proyIntUdeA.proyectoIntegradorI.dto.TutorAvailabilityRequestDTO;
+import com.proyIntUdeA.proyectoIntegradorI.dto.TutorSearchDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SlotAvailabilityEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.UserXSubjectEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
@@ -97,5 +98,18 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
     @Override
     public List<SlotAvailabilityEntity> getTutorAvailability(String tutorId) {
         return availabilityRepository.findByTutorId(tutorId);
+    }
+
+    @Override
+    public List<TutorSearchDTO> findByTime(Long subjectId, String hour, String day) {
+        List<Object[]> data = availabilityRepository.findByTime(subjectId, hour, day);
+        return data.stream().map(row ->{
+            return new TutorSearchDTO(
+                    (String) row[0],
+                    (String) row[1],
+                    (String) row[2]
+                    );
+        }).collect(Collectors.toList());
+
     }
 }
