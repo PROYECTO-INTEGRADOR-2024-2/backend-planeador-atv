@@ -18,7 +18,7 @@ public class AvailabilityController {
         this.subjectTutorService = subjectTutorService;
     }
 
-    @GetMapping("/listarTutores")
+    @PostMapping("/listarTutores")
     public ResponseEntity<List<TutorSearchDTO>> findTutorsByTime(@RequestBody ListTutorsByTimeRequest listTutorsByTimeRequest){
         Long subjectId = listTutorsByTimeRequest.getSubjectId();
         String hour = listTutorsByTimeRequest.getHour();
