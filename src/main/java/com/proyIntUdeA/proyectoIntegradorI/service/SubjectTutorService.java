@@ -1,6 +1,7 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
 import com.proyIntUdeA.proyectoIntegradorI.dto.TutorAvailabilityRequestDTO;
+import com.proyIntUdeA.proyectoIntegradorI.dto.TutorSearchDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SlotAvailabilityEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.UserXSubjectEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserXSubject;
@@ -20,5 +21,7 @@ public interface SubjectTutorService {
     List<SlotAvailabilityEntity> saveTutorAvailability(TutorAvailabilityRequestDTO request);
 
     List<SlotAvailabilityEntity> getTutorAvailability(String tutorId);
+
+    List<TutorSearchDTO> findByTime(Long subjectId,String hour,String day);
 
 }

@@ -41,4 +41,6 @@ public class SubjectTutorController {
         List<SlotAvailabilityEntity> availability = subjectTutorService.getTutorAvailability(tutorId);
         return ResponseEntity.ok(availability);
     }
+
+
 }

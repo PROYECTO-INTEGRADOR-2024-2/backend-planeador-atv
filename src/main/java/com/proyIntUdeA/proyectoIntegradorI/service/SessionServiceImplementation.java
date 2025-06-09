@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
@@ -15,10 +16,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -461,5 +461,77 @@ public class SessionServiceImplementation implements SessionService {
             );
         }).collect(Collectors.toList());
     }
+    @Override
+    public String formatearfecha(Date fecha){
+        ZonedDateTime date = fecha.toInstant().atZone(ZoneId.of("UTC"));
+        System.out.println("Fecha traida del Back en formato instant " + date);
+        ZonedDateTime colombiaDateTime = date.withZoneSameInstant(ZoneId.of("America/Bogota"));
+        System.out.println("Fecha traida del Back en formato colombiano " + colombiaDateTime);
+        DateTimeFormatter formatter12h = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+        return colombiaDateTime.format(formatter12h);
+    }
+
+    //Devuelve true si hay algún error
+    @Override
+    public boolean verificarDispoTutor(String tutorId, String fechaParam, String hourParam, String period){
+        List<Object[]> fechas = sessionRepository.findDates(tutorId);
+        List<String> fechasForm = new ArrayList<>();
+        List<String> fechasFinal = new ArrayList<>();
+        boolean isBusy = false;
+
+        for(Object[] fecha : fechas){
+            fechasForm.add(formatearfecha((Date) fecha[0]));
+        }
+
+        fechasForm.forEach(fecha -> {
+            if(fecha.substring(0, 10).equals(fechaParam)){
+                fechasFinal.add(fecha);
+            }
+        });
+        System.out.println("-----------------------------------------------------");
+        String hourTuto = "";
+        for(String fecha : fechasFinal){
+            if(isBusyOneHourBefore(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))
+            || isBusyOneHourLater(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))){
+                isBusy = true;
+            }
+        }
+        return isBusy;
+    }
+
+    // Método para validar que una hora sea una hora antes a otra. Previamente comparadas las fechas. Funciona para
+    // horas entre 6am y 8pm
+    boolean isBusyOneHourBefore(String hourStudent, String periodStudent, String hourTuto, String periodTuto){
+        boolean isBusy = false;
+
+        int numHourStudent = Integer.parseInt(hourStudent.substring(0,2));
+        int numHourTuto = Integer.parseInt(hourTuto.substring(0,2));
+        int finalnumHourTutor = numHourTuto == 1 ? 12 : numHourTuto - 1;
+        if(hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00") && periodTuto.equals("PM")){
+            isBusy = true;
+        }else if((finalnumHourTutor) == numHourStudent){
+            isBusy = true;
+        }
+
+        return isBusy;
+    }
+
+    // Método para validar que una hora sea una hora después a otra. Previamente comparadas las fechas. Funciona para
+    // horas entre 6am y 8pm
+    boolean isBusyOneHourLater(String hourStudent, String periodStudent, String hourTuto, String periodTuto){
+        boolean isBusy = false;
+
+        int numHourStudent = Integer.parseInt(hourStudent.substring(0,2));
+        int numHourTuto = Integer.parseInt(hourTuto.substring(0,2));
+        int finalnumHourTutor = numHourTuto == 12 ? 1 : numHourTuto + 1;
+        if(hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00") && periodTuto.equals("PM")){
+            isBusy = true;
+        }else if((finalnumHourTutor) == numHourStudent){
+            isBusy = true;
+        }
+
+        return isBusy;
+    }
+
 
 }
