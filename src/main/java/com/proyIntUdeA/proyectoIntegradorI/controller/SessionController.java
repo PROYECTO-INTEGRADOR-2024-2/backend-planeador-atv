@@ -332,9 +332,4 @@ public class SessionController {
         sessionService.registerClass(id);
         return ResponseEntity.status(HttpStatus.OK).body("Tutoría registrada correctamente");
     }
-
-    @GetMapping("/verificar")
-    public boolean prueba(){
-        return sessionService.verificarDispoTutor("1111111111", "2025-06-09", "12:00", "AM");
-    }
 }
