@@ -14,7 +14,7 @@ public interface TutorAvailabilityRepository extends JpaRepository<SlotAvailabil
     List<SlotAvailabilityEntity> findByTutorId(String tutorId);
     void deleteByTutorId(String tutorId);
 
-    @Query(value = "select DISTINCT" +
+    @Query(value = "select DISTINCT " +
             "av.tutor_id, " +
             "tu.user_firstname, " +
             "tu.user_lastname " +

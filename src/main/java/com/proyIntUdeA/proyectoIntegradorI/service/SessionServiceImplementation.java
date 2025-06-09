@@ -17,6 +17,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -466,22 +467,88 @@ public class SessionServiceImplementation implements SessionService {
         System.out.println("Fecha traida del Back en formato instant " + date);
         ZonedDateTime colombiaDateTime = date.withZoneSameInstant(ZoneId.of("America/Bogota"));
         System.out.println("Fecha traida del Back en formato colombiano " + colombiaDateTime);
-        return colombiaDateTime.toString().substring(0, 16);
+        DateTimeFormatter formatter12h = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
+        return colombiaDateTime.format(formatter12h);
     }
 
     //Devuelve true si hay algún error
     @Override
-    public boolean verificarDispoTutor(String tutorId){
+    public boolean verificarDispoTutor(String tutorId, String fechaParam, String hourParam, String period){
         List<Object[]> fechas = sessionRepository.findDates(tutorId);
         List<String> fechasForm = new ArrayList<>();
+        List<String> fechasFinal = new ArrayList<>();
+        boolean isBusy = false;
 
         for(Object[] fecha : fechas){
             fechasForm.add(formatearfecha((Date) fecha[0]));
         }
 
-        fechasForm.forEach(fecha -> System.out.printf("fecha: "+fecha));
+        fechasForm.forEach(fecha -> {
+            if(fecha.substring(0, 10).equals(fechaParam)){
+                fechasFinal.add(fecha);
+            }
+        });
+        System.out.println("------------------------------");
+        fechasFinal.forEach(fecha -> System.out.println("fecha: "+fecha));
 
-        return true;
+
+        for(String fecha : fechasFinal){
+            String finalhour;
+            int num = Integer.parseInt(fecha.substring(11,12+1)) == 12 ? 1 : Integer.parseInt(fecha.substring(11,12+1))+1;
+            if(num >= 10){
+                finalhour = num + ":00";
+            }else{
+                finalhour = "0" + num+ ":00";
+            }
+
+            System.out.println("final hour: "+finalhour);
+            if((fecha.substring(11, 16).equals(hourParam) && fecha.substring(17,19).equals(period))
+                    || (finalhour.equals(hourParam))) {
+                isBusy = true;
+            }
+
+            int previousHour = Integer.parseInt(fecha.substring(11,12+1)) == 1 ? 12 : Integer.parseInt(fecha.substring(11,12+1))-1;
+            String strpreviousHour;
+            if(previousHour >= 10){
+                strpreviousHour = num + ":00";
+            }else{
+                strpreviousHour = "0" + num+ ":00";
+            }
+            if(previousHour > 5){
+                if((fecha.substring(11, 16).equals(strpreviousHour) && fecha.substring(17,19).equals(period))
+                        || (finalhour.equals(hourParam))) {
+                    isBusy = true;
+                }
+            }else{
+                if((fecha.substring(11, 16).equals(strpreviousHour))
+                        || (finalhour.equals(hourParam))) {
+                    isBusy = true;
+                }
+            }
+
+
+        }
+
+
+
+        return isBusy;
+    }
+
+    // Método para validar que una hora sea una hora antes a otra. Previamente comparadas las fechas. Funciona para
+    // horas entre 6am y 8pm
+    boolean isBusyOneHourBefore(String hourStudent, String periodStudent, String hourTuto, String periodTuto){
+        boolean isBusy = false;
+
+        int numHourStudent = Integer.parseInt(hourStudent.substring(0,2));
+        int numHourTuto = Integer.parseInt(hourTuto.substring(0,2));
+        int finalnumHourTutor = numHourTuto == 1 ? 12 : numHourTuto - 1;
+        if(hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00") && periodTuto.equals("PM")){
+            isBusy = true;
+        }else if((finalnumHourTutor) == numHourStudent){
+            isBusy = true;
+        }
+
+        return isBusy;
     }
 
 

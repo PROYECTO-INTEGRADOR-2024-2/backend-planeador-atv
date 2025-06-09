@@ -43,5 +43,5 @@ public interface SessionService {
 
     String formatearfecha(Date fecha);
 
-    boolean verificarDispoTutor(String tutorId);
+    boolean verificarDispoTutor(String tutorId, String fecha, String hourParam, String period);
 }

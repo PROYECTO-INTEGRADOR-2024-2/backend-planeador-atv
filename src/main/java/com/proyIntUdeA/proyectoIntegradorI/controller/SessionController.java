@@ -334,8 +334,7 @@ public class SessionController {
     }
 
     @GetMapping("/verificar")
-    public ResponseEntity<?> prueba(){
-        sessionService.verificarDispoTutor("1111111111");
-        return ResponseEntity.ok("ok");
+    public boolean prueba(){
+        return sessionService.verificarDispoTutor("1111111111", "2025-06-09", "10:00", "AM");
     }
 }
