@@ -488,49 +488,14 @@ public class SessionServiceImplementation implements SessionService {
                 fechasFinal.add(fecha);
             }
         });
-        System.out.println("------------------------------");
-        fechasFinal.forEach(fecha -> System.out.println("fecha: "+fecha));
-
-
+        System.out.println("-----------------------------------------------------");
+        String hourTuto = "";
         for(String fecha : fechasFinal){
-            String finalhour;
-            int num = Integer.parseInt(fecha.substring(11,12+1)) == 12 ? 1 : Integer.parseInt(fecha.substring(11,12+1))+1;
-            if(num >= 10){
-                finalhour = num + ":00";
-            }else{
-                finalhour = "0" + num+ ":00";
-            }
-
-            System.out.println("final hour: "+finalhour);
-            if((fecha.substring(11, 16).equals(hourParam) && fecha.substring(17,19).equals(period))
-                    || (finalhour.equals(hourParam))) {
+            if(isBusyOneHourBefore(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))
+            || isBusyOneHourLater(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))){
                 isBusy = true;
             }
-
-            int previousHour = Integer.parseInt(fecha.substring(11,12+1)) == 1 ? 12 : Integer.parseInt(fecha.substring(11,12+1))-1;
-            String strpreviousHour;
-            if(previousHour >= 10){
-                strpreviousHour = num + ":00";
-            }else{
-                strpreviousHour = "0" + num+ ":00";
-            }
-            if(previousHour > 5){
-                if((fecha.substring(11, 16).equals(strpreviousHour) && fecha.substring(17,19).equals(period))
-                        || (finalhour.equals(hourParam))) {
-                    isBusy = true;
-                }
-            }else{
-                if((fecha.substring(11, 16).equals(strpreviousHour))
-                        || (finalhour.equals(hourParam))) {
-                    isBusy = true;
-                }
-            }
-
-
         }
-
-
-
         return isBusy;
     }
 
@@ -542,6 +507,23 @@ public class SessionServiceImplementation implements SessionService {
         int numHourStudent = Integer.parseInt(hourStudent.substring(0,2));
         int numHourTuto = Integer.parseInt(hourTuto.substring(0,2));
         int finalnumHourTutor = numHourTuto == 1 ? 12 : numHourTuto - 1;
+        if(hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00") && periodTuto.equals("PM")){
+            isBusy = true;
+        }else if((finalnumHourTutor) == numHourStudent){
+            isBusy = true;
+        }
+
+        return isBusy;
+    }
+
+    // Método para validar que una hora sea una hora después a otra. Previamente comparadas las fechas. Funciona para
+    // horas entre 6am y 8pm
+    boolean isBusyOneHourLater(String hourStudent, String periodStudent, String hourTuto, String periodTuto){
+        boolean isBusy = false;
+
+        int numHourStudent = Integer.parseInt(hourStudent.substring(0,2));
+        int numHourTuto = Integer.parseInt(hourTuto.substring(0,2));
+        int finalnumHourTutor = numHourTuto == 12 ? 1 : numHourTuto + 1;
         if(hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00") && periodTuto.equals("PM")){
             isBusy = true;
         }else if((finalnumHourTutor) == numHourStudent){

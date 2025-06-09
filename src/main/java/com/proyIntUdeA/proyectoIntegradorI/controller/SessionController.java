@@ -335,6 +335,6 @@ public class SessionController {
 
     @GetMapping("/verificar")
     public boolean prueba(){
-        return sessionService.verificarDispoTutor("1111111111", "2025-06-09", "10:00", "AM");
+        return sessionService.verificarDispoTutor("1111111111", "2025-06-09", "12:00", "AM");
     }
 }
