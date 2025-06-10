@@ -101,8 +101,8 @@ public class SubjectTutorServiceImplementation implements SubjectTutorService {
     }
 
     @Override
-    public List<TutorSearchDTO> findByTime(Long subjectId, String hour, String day) {
-        List<Object[]> data = availabilityRepository.findByTime(subjectId, hour, day);
+    public List<TutorSearchDTO> findByTime(Long subjectId, String hour, String day, String period) {
+        List<Object[]> data = availabilityRepository.findByTime(subjectId, hour, day, period);
         return data.stream().map(row ->{
             return new TutorSearchDTO(
                     (String) row[0],

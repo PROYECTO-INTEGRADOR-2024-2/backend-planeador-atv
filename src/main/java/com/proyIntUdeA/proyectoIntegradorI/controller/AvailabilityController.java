@@ -29,7 +29,7 @@ public class AvailabilityController {
         String day = listTutorsByTimeRequest.getDayWeek();
         String period = listTutorsByTimeRequest.getPeriod();
         String date = listTutorsByTimeRequest.getDate();
-        List<TutorSearchDTO> tutors = subjectTutorService.findByTime(subjectId,hour, day ).stream().filter(
+        List<TutorSearchDTO> tutors = subjectTutorService.findByTime(subjectId,hour, day, period).stream().filter(
                 tutor -> !sessionService.verificarDispoTutor(tutor.getTutorId(), date, hour, period)
         ).collect(Collectors.toList());
 

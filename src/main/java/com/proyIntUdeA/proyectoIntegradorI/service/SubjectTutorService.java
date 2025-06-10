@@ -22,6 +22,6 @@ public interface SubjectTutorService {
 
     List<SlotAvailabilityEntity> getTutorAvailability(String tutorId);
 
-    List<TutorSearchDTO> findByTime(Long subjectId,String hour,String day);
+    List<TutorSearchDTO> findByTime(Long subjectId,String hour,String day, String period);
 
 }
