@@ -23,7 +23,7 @@ public interface TutorAvailabilityRepository extends JpaRepository<SlotAvailabil
             "join userxsubject_entity us ON us.user_id = av.tutor_id " +
             "where av.day = :day " +
             "and av.start_time = :hour " +
-            "and us.subject_id = :subjectId" +
+            "and us.subject_id = :subjectId " +
             "and av.period = :period", nativeQuery = true)
     List<Object[]> findByTime (
             @Param ("subjectId") Long subjectId,
