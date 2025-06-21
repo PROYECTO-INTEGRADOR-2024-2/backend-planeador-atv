@@ -41,7 +41,5 @@ public interface SessionService {
     // Encuentro no realizado
     boolean noClass(Long classId);
 
-    String formatearfecha(Date fecha);
-
     boolean verificarDispoTutor(String tutorId, String fecha, String hourParam, String period);
 }

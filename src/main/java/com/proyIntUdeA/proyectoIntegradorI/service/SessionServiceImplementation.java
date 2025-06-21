@@ -1,13 +1,10 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
-import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoAdminDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoDTO;
 import com.proyIntUdeA.proyectoIntegradorI.dto.BasicTutoringInfoTutorDTO;
 import com.proyIntUdeA.proyectoIntegradorI.entity.PersonEntity;
 import com.proyIntUdeA.proyectoIntegradorI.entity.SessionEntity;
-import com.proyIntUdeA.proyectoIntegradorI.model.AcceptSessionRequest;
-import com.proyIntUdeA.proyectoIntegradorI.model.RejectSessionRequest;
 import com.proyIntUdeA.proyectoIntegradorI.model.Session;
 import com.proyIntUdeA.proyectoIntegradorI.model.enums.canceledBy;
 import com.proyIntUdeA.proyectoIntegradorI.repository.PersonRepository;
@@ -15,7 +12,7 @@ import com.proyIntUdeA.proyectoIntegradorI.repository.SessionRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
+import com.proyIntUdeA.proyectoIntegradorI.utils.DateUtils;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -30,6 +27,7 @@ public class SessionServiceImplementation implements SessionService {
 
     private final SessionRepository sessionRepository;
     private final PersonRepository personRepository;
+    private final DateUtils dateUtils;
 
     @Override
     public Session saveSession(Session session) {
@@ -457,16 +455,6 @@ public class SessionServiceImplementation implements SessionService {
         }).collect(Collectors.toList());
     }
 
-    @Override
-    public String formatearfecha(Date fecha) {
-        ZonedDateTime date = fecha.toInstant().atZone(ZoneId.of("UTC"));
-        System.out.println("Fecha traida del Back en formato instant " + date);
-        ZonedDateTime colombiaDateTime = date.withZoneSameInstant(ZoneId.of("America/Bogota"));
-        System.out.println("Fecha traida del Back en formato colombiano " + colombiaDateTime);
-        DateTimeFormatter formatter12h = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
-        return colombiaDateTime.format(formatter12h);
-    }
-
     // Devuelve true si hay algún error
     @Override
     public boolean verificarDispoTutor(String tutorId, String fechaParam, String hourParam, String period) {
@@ -476,7 +464,7 @@ public class SessionServiceImplementation implements SessionService {
         boolean isBusy = false;
 
         for (Object[] fecha : fechas) {
-            fechasForm.add(formatearfecha((Date) fecha[0]));
+            fechasForm.add(dateUtils.formatearfecha((Date) fecha[0]));
         }
 
         fechasForm.forEach(fecha -> {
@@ -490,8 +478,8 @@ public class SessionServiceImplementation implements SessionService {
             System.out.println("Hora stu: " + hourParam + " " + period);
             System.out.println("Hora tuto " + fecha.substring(11, 16) + " " + fecha.substring(17, 19));
 
-            if (isBusyOneHourBefore(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))
-                    || isBusyOneHourLater(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))) {
+            if (dateUtils.isBusyOneHourBefore(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))
+                    || dateUtils.isBusyOneHourLater(hourParam, period, fecha.substring(11, 16), fecha.substring(17, 19))) {
                 isBusy = true;
             } else if (hourParam.equals(fecha.substring(11, 16)) && period.equals(fecha.substring(17, 19))) {
                 isBusy = true;
@@ -499,43 +487,4 @@ public class SessionServiceImplementation implements SessionService {
         }
         return isBusy;
     }
-
-    // Método para validar que una hora sea una hora antes a otra. Previamente
-    // comparadas las fechas. Funciona para
-    // horas entre 6am y 8pm
-    boolean isBusyOneHourBefore(String hourStudent, String periodStudent, String hourTuto, String periodTuto) {
-        boolean isBusy = false;
-
-        int numHourStudent = Integer.parseInt(hourStudent.substring(0, 2));
-        int numHourTuto = Integer.parseInt(hourTuto.substring(0, 2));
-        int finalnumHourTutor = numHourTuto == 1 ? 12 : numHourTuto - 1;
-        if (hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00")
-                && periodTuto.equals("PM")) {
-            isBusy = true;
-        } else if ((finalnumHourTutor) == numHourStudent) {
-            isBusy = true;
-        }
-
-        return isBusy;
-    }
-
-    // Método para validar que una hora sea una hora después a otra. Previamente
-    // comparadas las fechas. Funciona para
-    // horas entre 6am y 8pm
-    boolean isBusyOneHourLater(String hourStudent, String periodStudent, String hourTuto, String periodTuto) {
-        boolean isBusy = false;
-
-        int numHourStudent = Integer.parseInt(hourStudent.substring(0, 2));
-        int numHourTuto = Integer.parseInt(hourTuto.substring(0, 2));
-        int finalnumHourTutor = numHourTuto == 12 ? 1 : numHourTuto + 1;
-        if (hourStudent.equals("11:00") && periodStudent.equals("AM") && hourTuto.equals("12:00")
-                && periodTuto.equals("PM")) {
-            isBusy = true;
-        } else if ((finalnumHourTutor) == numHourStudent) {
-            isBusy = true;
-        }
-
-        return isBusy;
-    }
-
 }
