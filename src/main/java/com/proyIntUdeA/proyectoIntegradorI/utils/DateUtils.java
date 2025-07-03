@@ -1,10 +1,13 @@
 package com.proyIntUdeA.proyectoIntegradorI.utils;
 
+import org.springframework.stereotype.Component;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+@Component
 public class DateUtils {
     // Método para validar que una hora sea una hora antes a otra. Previamente
     // comparadas las fechas. Funciona para
@@ -44,6 +47,7 @@ public class DateUtils {
         return isBusy;
     }
 
+    //Función para formatear fecha y traer un String en formato yyyy-MM-dd hh:mm a
     public String formatearfecha(Date fecha) {
         ZonedDateTime date = fecha.toInstant().atZone(ZoneId.of("UTC"));
         System.out.println("Fecha traida del Back en formato instant " + date);

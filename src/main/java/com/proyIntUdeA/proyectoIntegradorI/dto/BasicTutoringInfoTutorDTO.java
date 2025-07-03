@@ -8,7 +8,7 @@ import java.util.Date;
 @Data
 public class BasicTutoringInfoTutorDTO {
     private Long classId;
-    private Date classDate;
+    private String classDate;
     private String subjectName;
     private boolean registered;
     private canceledBy canceledBy;
@@ -19,7 +19,7 @@ public class BasicTutoringInfoTutorDTO {
     private String studentName;
     private String studentLastname;
 
-    public BasicTutoringInfoTutorDTO(Long classId, Date classDate, String subjectName, boolean registered, canceledBy canceledBy, boolean accepted, String classTopics, float classRate, String studentId, String studentName, String studentLastname) {
+    public BasicTutoringInfoTutorDTO(Long classId, String classDate, String subjectName, boolean registered, canceledBy canceledBy, boolean accepted, String classTopics, float classRate, String studentId, String studentName, String studentLastname) {
         this.classId = classId;
         this.classDate = classDate;
         this.subjectName = subjectName;

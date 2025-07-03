@@ -14,7 +14,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import com.proyIntUdeA.proyectoIntegradorI.utils.DateUtils;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -410,7 +409,7 @@ public class SessionServiceImplementation implements SessionService {
 
             return new BasicTutoringInfoTutorDTO(
                     (Long) row[0],
-                    (Date) row[1],
+                    dateUtils.formatearfecha((Date) row[1]),
                     (String) row[2],
                     (boolean) row[3],
                     canceledByEnum,
@@ -473,7 +472,6 @@ public class SessionServiceImplementation implements SessionService {
             }
         });
         System.out.println("-----------------------------------------------------");
-        String hourTuto = "";
         for (String fecha : fechasFinal) {
             System.out.println("Hora stu: " + hourParam + " " + period);
             System.out.println("Hora tuto " + fecha.substring(11, 16) + " " + fecha.substring(17, 19));
