@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.proyIntUdeA.proyectoIntegradorI.Jwt.JwtService;
+import com.proyIntUdeA.proyectoIntegradorI.service.ActivationService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,14 +31,10 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/")
 @RequiredArgsConstructor
 public class PersonController {
-    @Autowired
-    private PersonService personService;
-    private JwtService jwtService;
 
-    public PersonController(PersonService personService, JwtService jwtService) {
-        this.personService = personService;
-        this.jwtService = jwtService;
-    }
+    private final PersonService personService;
+    private final JwtService jwtService;
+    private final ActivationService activationService;
 
     @PostMapping("/persons")
     public Person savePerson(@RequestBody Person person) {
@@ -71,8 +68,8 @@ public class PersonController {
         return ResponseEntity.ok(person);
     }
 
-    @PutMapping("/persons/activateTutor/{id}")
-    public ResponseEntity<?> activateTutor(@PathVariable("id") String id, HttpServletRequest request) {
+    @PutMapping("/persons/activateTutor/{user_id}/{app_id}")
+    public ResponseEntity<?> activateTutor(@PathVariable("user_id") String user_id, @PathVariable("app_id") Long app_id, HttpServletRequest request) {
         ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
 
         if (tokenVerification.getStatusCode() != HttpStatus.OK) {
@@ -87,10 +84,11 @@ public class PersonController {
                     .body("Debes ser usuario administrador");
         }
 
-        Person person = personService.getPersonById(id);
+        Person person = personService.getPersonById(user_id);
         if(person.getUserRole().equalsIgnoreCase("ROLE_STUDENT")){
             person.setUserRole("ROLE_TUTOR");
-            person = personService.updatePerson(id, person);
+            person = personService.updatePerson(user_id, person);
+            activationService.acceptRequest(app_id);
             return ResponseEntity.ok(person);
         }else{
             return ResponseEntity
