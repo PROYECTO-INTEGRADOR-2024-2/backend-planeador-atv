@@ -26,10 +26,11 @@ public class ApplicationController {
     private ActivationService activationService;
     private SubjectTutorService subjectTutorService;
     private JwtService jwtService;
-    
-    public ApplicationController(ActivationService activationService, SubjectTutorService subjectTutorService) {
+
+    public ApplicationController(ActivationService activationService, SubjectTutorService subjectTutorService, JwtService jwtService) {
         this.activationService = activationService;
         this.subjectTutorService = subjectTutorService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/application")
