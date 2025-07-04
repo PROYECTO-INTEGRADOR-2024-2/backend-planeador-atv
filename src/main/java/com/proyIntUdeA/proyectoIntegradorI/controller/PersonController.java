@@ -110,7 +110,7 @@ public class PersonController {
         }
 
         String role = (String) claims.get("user_role");
-        if (role == null || !role.equalsIgnoreCase("admin")) {
+        if (role == null || !role.equalsIgnoreCase("ROLE_ADMIN")) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Only admin can disable users"));
@@ -156,7 +156,7 @@ public class PersonController {
         }
 
         String role = (String) claims.get("user_role");
-        if (role == null || !role.equalsIgnoreCase("admin")) {
+        if (role == null || !role.equalsIgnoreCase("ROLE_ADMIN")) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Only admin can enable users"));

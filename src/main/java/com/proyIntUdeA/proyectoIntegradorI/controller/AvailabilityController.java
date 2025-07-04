@@ -1,7 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
 import com.proyIntUdeA.proyectoIntegradorI.dto.TutorSearchDTO;
-import com.proyIntUdeA.proyectoIntegradorI.entity.SlotAvailabilityEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.ListTutorsByTimeRequest;
 import com.proyIntUdeA.proyectoIntegradorI.service.SessionService;
 import com.proyIntUdeA.proyectoIntegradorI.service.SubjectTutorService;
