@@ -80,7 +80,7 @@ public class SessionController {
         String token = request.getHeader("Authorization").substring(7);
         String user_role = jwtService.getClaim(token, claims -> claims.get("user_role", String.class)).toLowerCase();
 
-        if(!user_role.equals("admin")){
+        if(!user_role.equalsIgnoreCase("ROLE_ADMIN")){
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("Debes ser usuario administrador");
@@ -126,7 +126,7 @@ public class SessionController {
                 claims.get("user_role", String.class).toLowerCase()
         );
 
-        if (!userRole.equals("tutor")) {
+        if (!userRole.equalsIgnoreCase("ROLE_TUTOR")) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("No es un tutor el que quiere aceptar la tutoría");
@@ -303,7 +303,7 @@ public class SessionController {
                 claims.get("user_role", String.class).toLowerCase()
         );
 
-        if (userRole.equals("student")){
+        if (userRole.equals("ROLE_STUDENT")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Los estudiantes no acceden al pool");
         }
         List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor("0");
