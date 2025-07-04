@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.TutorActivationRequest;
 import com.proyIntUdeA.proyectoIntegradorI.entity.ApplicationActivationTutorEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.ApplicationActivationTutor;
 import com.proyIntUdeA.proyectoIntegradorI.model.UserSubjectRequest;
@@ -31,8 +32,8 @@ public class ApplicationController {
     }
 
     @GetMapping("/application")
-    public List<ApplicationActivationTutor> getAllApplications() {
-        return activationService.getAllApplications();
+    public List<TutorActivationRequest> getAllApplications() {
+        return activationService.listActivations();
     }
 
     @PutMapping("/application/accept/{id}")
