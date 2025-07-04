@@ -45,7 +45,7 @@ public class AuthService {
                 .userDepartment(request.getUserDepartment())
                 .userCity(request.getUserCity())
                 .userState(request.getUserState())
-                .userRole(request.getUserRole())
+                .userRole("ROLE_STUDENT")
                 .build();
 
         personRepository.save(person);
