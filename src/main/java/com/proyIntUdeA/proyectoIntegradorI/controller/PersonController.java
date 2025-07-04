@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proyIntUdeA.proyectoIntegradorI.Jwt.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,9 +32,11 @@ import lombok.RequiredArgsConstructor;
 public class PersonController {
     @Autowired
     private PersonService personService;
+    private JwtService jwtService;
 
-    public PersonController(PersonService personService) {
+    public PersonController(PersonService personService, JwtService jwtService) {
         this.personService = personService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/persons")
@@ -69,11 +72,32 @@ public class PersonController {
     }
 
     @PutMapping("/persons/activateTutor/{id}")
-    public ResponseEntity<Person> activateTutor(@PathVariable("id") String id) {
+    public ResponseEntity<?> activateTutor(@PathVariable("id") String id, HttpServletRequest request) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        String user_role = jwtService.getClaim(token, claims -> claims.get("user_role", String.class)).toLowerCase();
+        if(!user_role.equalsIgnoreCase("ROLE_ADMIN")){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Debes ser usuario administrador");
+        }
+
         Person person = personService.getPersonById(id);
-        person.setUserRole("Tutor");
-        person = personService.updatePerson(id, person);
-        return ResponseEntity.ok(person);
+        if(person.getUserRole().equalsIgnoreCase("ROLE_STUDENT")){
+            person.setUserRole("ROLE_TUTOR");
+            person = personService.updatePerson(id, person);
+            return ResponseEntity.ok(person);
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("El usuario al que se desea activar ya tiene rol de tutor o administrador. No se realiza ninguna acción");
+        }
+
     }
 
     @PutMapping("/persons/activateAdmin/{id}")
