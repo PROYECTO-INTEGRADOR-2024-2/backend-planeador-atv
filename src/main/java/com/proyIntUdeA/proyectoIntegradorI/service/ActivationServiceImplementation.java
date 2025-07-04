@@ -84,7 +84,7 @@ public class ActivationServiceImplementation implements ActivationService {
         List<Object[]> rawData = activationRepository.findAllApplications();
 
         return rawData.stream().map(row -> {
-            String fileId = row[5].toString();
+            String fileId = row[6].toString();
 
             String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/api/v1/fileManager/files/")
@@ -92,11 +92,12 @@ public class ActivationServiceImplementation implements ActivationService {
                     .toUriString();
 
             return new TutorActivationRequest(
-                    dateUtils.formatearfecha((Date) row[0]),
-                    (String) row[1],
-                    row[2].toString(),
-                    (String) row[3],
+                    (Long) row[0],
+                    dateUtils.formatearfecha((Date) row[1]),
+                    (String) row[2],
+                    row[3].toString(),
                     (String) row[4],
+                    (String) row[5],
                     fileDownloadUri
             );
         }).collect(Collectors.toList());

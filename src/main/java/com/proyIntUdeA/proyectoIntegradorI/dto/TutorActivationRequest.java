@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TutorActivationRequest {
+    private Long requestId;
     private String requestDate;
     private String requestState;
     private String studentId;
