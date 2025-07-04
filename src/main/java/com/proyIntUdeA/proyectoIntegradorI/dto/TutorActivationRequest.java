@@ -16,6 +16,5 @@ public class TutorActivationRequest {
     private String studentId;
     private String studentName;
     private String semester;
-    @Lob
-    private byte[] file;
+    private String fileUrl;
 }

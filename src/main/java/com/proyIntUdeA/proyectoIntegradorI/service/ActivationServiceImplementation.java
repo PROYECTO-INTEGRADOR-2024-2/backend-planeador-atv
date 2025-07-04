@@ -11,6 +11,7 @@ import com.proyIntUdeA.proyectoIntegradorI.repository.ActivationRepository;
 import com.proyIntUdeA.proyectoIntegradorI.utils.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.swing.text.html.Option;
 import java.util.Date;
@@ -79,17 +80,27 @@ public class ActivationServiceImplementation implements ActivationService {
     }
 
     @Override
-    public List<TutorActivationRequest> listActivations(){
+    public List<TutorActivationRequest> listActivations() {
         List<Object[]> rawData = activationRepository.findAllApplications();
+
         return rawData.stream().map(row -> {
+            String fileId = row[5].toString();
+
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/api/v1/fileManager/files/")
+                    .path(fileId)
+                    .toUriString();
+
             return new TutorActivationRequest(
                     dateUtils.formatearfecha((Date) row[0]),
                     (String) row[1],
-                    (String) row[2],
+                    row[2].toString(),
                     (String) row[3],
                     (String) row[4],
-                    (byte[]) row[5]);
+                    fileDownloadUri
+            );
         }).collect(Collectors.toList());
     }
+
 
 }
