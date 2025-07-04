@@ -1,5 +1,6 @@
 package com.proyIntUdeA.proyectoIntegradorI.service;
 
+import com.proyIntUdeA.proyectoIntegradorI.dto.TutorActivationRequest;
 import com.proyIntUdeA.proyectoIntegradorI.entity.ApplicationActivationTutorEntity;
 import com.proyIntUdeA.proyectoIntegradorI.model.ApplicationActivationTutor;
 
@@ -14,4 +15,5 @@ public interface ActivationService {
     ApplicationActivationTutor deleteApplication(Long id);
     Optional<ApplicationActivationTutorEntity> acceptRequest(Long id);
     Optional<ApplicationActivationTutorEntity> rejectRequest(Long id);
+    List<TutorActivationRequest> listActivations();
 }
