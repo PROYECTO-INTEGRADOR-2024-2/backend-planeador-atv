@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,16 +23,31 @@ public class AvailabilityController {
     }
 
     @PostMapping("/listarTutores")
-    public ResponseEntity<List<TutorSearchDTO>> findTutorsByTime(@RequestBody ListTutorsByTimeRequest listTutorsByTimeRequest){
+    public ResponseEntity<List<TutorSearchDTO>> findTutorsByTime(@RequestBody ListTutorsByTimeRequest listTutorsByTimeRequest) {
         Long subjectId = listTutorsByTimeRequest.getSubjectId();
         String hour = listTutorsByTimeRequest.getHour();
         String day = listTutorsByTimeRequest.getDayWeek();
         String period = listTutorsByTimeRequest.getPeriod();
         String date = listTutorsByTimeRequest.getDate();
-        List<TutorSearchDTO> tutors = subjectTutorService.findByTime(subjectId,hour, day, period).stream().filter(
-                tutor -> !sessionService.verificarDispoTutor(tutor.getTutorId(), date, hour, period)
-        ).collect(Collectors.toList());
+
+        List<TutorSearchDTO> tutors = subjectTutorService.findByTime(subjectId, hour, day, period).stream()
+                .filter(tutor -> !sessionService.verificarDispoTutor(tutor.getTutorId(), date, hour, period))
+                .collect(Collectors.toList());
+
+        // Crear y agregar el tutor por defecto con ID "0"
+        TutorSearchDTO defaultTutor = new TutorSearchDTO("0", "Cualquier", "Tutor");
+
+        // Verificar si ya existe un tutor con ID "0" en la lista
+        boolean alreadyIncluded = tutors.stream()
+                .anyMatch(t -> "0".equals(t.getTutorId()));
+
+        if (!alreadyIncluded) {
+            tutors.add(defaultTutor);
+        }
 
         return ResponseEntity.ok(tutors);
     }
+
+
+
 }
