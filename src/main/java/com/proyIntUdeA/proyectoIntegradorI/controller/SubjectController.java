@@ -1,6 +1,9 @@
 package com.proyIntUdeA.proyectoIntegradorI.controller;
+import com.proyIntUdeA.proyectoIntegradorI.Jwt.JwtService;
 import com.proyIntUdeA.proyectoIntegradorI.model.Subject;
 import com.proyIntUdeA.proyectoIntegradorI.service.SubjectService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
@@ -11,14 +14,32 @@ import java.util.Map;
 @RequestMapping("/api/v1/subject")
 public class SubjectController {
     private SubjectService subjectService;
+    private JwtService jwtService;
 
-    public SubjectController(SubjectService subjectService) {
+    public SubjectController(SubjectService subjectService, JwtService jwtService) {
         this.subjectService = subjectService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/")
-    public Subject saveSubject(@RequestBody Subject subject) {
-        return subjectService.saveSubject(subject);
+    public ResponseEntity<?> saveSubject(@RequestBody Subject subject, HttpServletRequest request) {
+        ResponseEntity<String> tokenVerification = jwtService.verifyToken(request);
+
+        if (tokenVerification.getStatusCode() != HttpStatus.OK) {
+            return tokenVerification;
+        }
+
+        String token = request.getHeader("Authorization").substring(7);
+        String user_role = jwtService.getClaim(token, claims -> claims.get("user_role", String.class)).toLowerCase();
+
+        if(!user_role.equalsIgnoreCase("ROLE_ADMIN")){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Debes ser usuario administrador");
+        }
+
+        Subject response = subjectService.saveSubject(subject);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/")
