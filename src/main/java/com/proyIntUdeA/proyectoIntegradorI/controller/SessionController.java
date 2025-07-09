@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.proyIntUdeA.proyectoIntegradorI.Jwt.JwtService;
 
 @AllArgsConstructor
@@ -302,12 +304,17 @@ public class SessionController {
         String userRole = jwtService.getClaim(token, claims ->
                 claims.get("user_role", String.class).toLowerCase()
         );
+        String tutorId = jwtService.getClaim(token, claims -> claims.get("user_id", String.class));
 
         if (userRole.equals("ROLE_STUDENT")){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Los estudiantes no acceden al pool");
         }
         List<BasicTutoringInfoTutorDTO> info = sessionService.getTutoringInfoTutor("0");
-        return ResponseEntity.ok(info);
+
+        List<BasicTutoringInfoTutorDTO> filteredList = info.stream()
+                .filter(tutoringInfo -> !tutoringInfo.getStudentId().equals(tutorId))
+                .toList();
+        return ResponseEntity.ok(filteredList);
     }
 
     @PutMapping("/registerClass/{id}")
