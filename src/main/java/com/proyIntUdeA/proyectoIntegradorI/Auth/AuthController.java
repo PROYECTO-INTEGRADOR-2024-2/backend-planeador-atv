@@ -43,14 +43,16 @@ public class AuthController {
     }
 
     @PostMapping(value = "register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
 
         List<Person> personas = personService.getAllPersons();
 
         for (Person person : personas) {
             if (request.getUserId().equals(person.getUserId())
                     || request.getUserEmail().equals(person.getUserEmail())) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body("Ya existe un usuario con el mismo correo o ID registrado en la plataforma");
             }
         }
 
